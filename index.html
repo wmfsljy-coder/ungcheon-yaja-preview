@@ -217,6 +217,26 @@ table.book .col{width:20%}
 .cell.extra{position:relative}.cell.extra::after{content:"추가";position:absolute;right:1px;top:1px;font-size:9.5px;line-height:1;padding:2px 3px;border-radius:4px;background:#e3eee0;color:#1d3a2c;font-weight:700}
 .away{padding:10px 14px;margin:0 0 10px;border-color:#efc6bf;background:#fdf6f4}.away summary{cursor:pointer}.away summary small{color:var(--muted);margin-left:4px}.away ul{list-style:none;padding:0;margin:6px 0 0}.away li{padding:6px 0;border-top:1px solid #f1dcd7;font-size:13.5px;line-height:1.5}.away li small{color:var(--muted)}.away a{color:#1d5fa8}.away .later{color:#2f6b3c;font-weight:600}
 .pickn{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:2px 0 8px}.pickn>span{font-size:13.5px;color:var(--muted);margin-right:2px}.pickn .chip[aria-pressed=true]{background:var(--night);color:#fff;border-color:var(--night)}
+.attd{border-top:1px solid var(--line);padding:6px 0}.attd summary{cursor:pointer;min-height:36px;display:flex;align-items:center;gap:6px}.attd summary small{color:var(--muted)}
+.attp{display:flex;gap:8px;padding:5px 0 5px 4px;border-top:1px dashed var(--line);font-size:13.5px}.attp .pn{flex:0 0 74px;font-weight:600}.attp .pn small{display:block;font-weight:400;color:var(--muted)}.attp .nm{flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 6px}
+.attp .who{background:var(--paper-2);border-radius:999px;padding:1px 9px;white-space:nowrap}.attp .who small{color:var(--muted);margin-left:3px;font-size:11px}
+.xtag,.ttag{display:inline-block;font-size:10px;line-height:1;padding:2px 4px;border-radius:4px;margin-left:3px;vertical-align:1px}.xtag{background:#e3eee0;color:#1d3a2c}.ttag{background:#f6e7c8;color:#7a5a12}
+/* 옅은 배경 그림 */
+#bgart{position:fixed;inset:0;z-index:-1;background-repeat:no-repeat;background-position:center 58%;background-size:cover;opacity:.2;pointer-events:none}
+#bgart.sunset{opacity:.22}#bgart.night{opacity:.2}
+.top .mark b{white-space:nowrap}.top .mark small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top .who{min-width:0;text-align:right}.top .who span{display:block;font-size:11.5px;line-height:1.3;white-space:normal}
+@media (min-width:1024px){#bgart{background-size:min(1400px,100vw) auto;background-position:center 70%}}
+.ddaybar{background:rgba(21,42,32,.9);color:#F7F1E3;text-align:center;padding:5px 12px;font-size:13px;line-height:1.4}
+.ddaybar b{color:#FFE08A;font-family:var(--title);font-weight:400;font-size:16px;margin-right:4px}
+.card:not(.away){background-color:rgba(255,252,246,.9)}
+/* 선생님 화면: 탭은 아래쪽에 고정(엄지로 누르기 쉽게) */
+.tabs.bottom{position:fixed;left:0;right:0;bottom:0;z-index:35;padding:0 0 env(safe-area-inset-bottom);border-top:1px solid rgba(217,182,92,.35);box-shadow:0 -4px 14px rgba(0,0,0,.18)}
+.tabs.bottom .tabs-in{max-width:760px;gap:0;justify-content:space-around;overflow:visible}
+.tabs.bottom button{flex:1 1 0;min-width:0;min-height:58px;padding:6px 2px;border-bottom:0;border-top:3px solid transparent;font-size:14.5px;line-height:1.25}
+.tabs.bottom button[aria-selected=true]{border-top-color:var(--gold-line);background:rgba(255,255,255,.06)}
+body.btabs #pane{padding-bottom:96px}
+body.btabs #toast{bottom:84px}
+@media (min-width:1024px){.tabs.bottom .tabs-in{max-width:1120px}.tabs.bottom button{font-size:15.5px;min-height:60px}}
 .daysum{background:#f3f6f1;border:1px solid #d9e3d5;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:13.5px;line-height:1.5}
 .cell:hover .dot{outline:1px solid var(--gold-line);outline-offset:2px}
 .cell .seals .seal{width:40px;height:40px}
@@ -380,7 +400,6 @@ var CONF0=[
   ["상품권금액","5000","별 1개로 받는 문화상품권 1매 금액(원)"],
   ["QR열림분","1","종 치기 몇 분 전부터 도장을 찍을 수 있는지"],
   ["QR닫힘분","10","종 친 뒤 몇 분까지 도장을 찍을 수 있는지(쉬는 시간)"],
-  ["QR변경초","15","QR 화면의 찍은 학생 수·이름을 몇 초마다 새로 불러올지. QR 자체는 바뀌지 않습니다(학년마다 고정)."],
   ["QR이름표시","Y","QR 화면에 찍은 학생 이름을 보여 줄지(Y 또는 N)"],
   ["위치확인","Y","도장을 찍을 때 학교 근처인지 확인할지(Y 또는 N). 실제 폰에서 문제가 생기면 N으로 끌 수 있습니다."],
   ["학교위도","35.1127309","학교 위치. 출처: OpenStreetMap, 웅천고등학교(창원시 진해구 성내동), 2026-11-05 조회"],
@@ -470,7 +489,8 @@ function make(db,env){
   }
   function starN(){return num("별도장",5);}
   function voucherWon(){return num("상품권금액",5000);}
-  function qrSec(){return Math.max(5,num("QR변경초",15));}
+  /* QR은 바뀌지 않는다. QR 화면의 찍은 학생 목록만 15초마다 새로 불러온다 */
+  function qrSec(){return 15;}
   /* 교시표: 시작·끝·QR 열림·닫힘(분 단위) */
   var SCH=null;
   function schedule(){
@@ -540,7 +560,8 @@ function make(db,env){
       ["1학년 학생",u+"?q=1","1학년 도장 QR과 같은 주소. 도장 시간에는 도장, 그 밖에는 내 도장판 보기"],
       ["2학년 학생",u+"?q=2","2학년 도장 QR과 같은 주소. 도장 시간에는 도장, 그 밖에는 내 도장판 보기"],
       ["앱 기본 주소",u,"주소만. 학생·선생님을 고르는 첫 화면"],
-      ["미리보기(시연본)","https://wmfsljy-coder.github.io/ungcheon-yaja-preview/","가짜 이름으로 만든 시연 화면. 휴대폰에서도 열리고 저장되지 않는다"]];
+      ["미리보기(시연본)","https://wmfsljy-coder.github.io/ungcheon-yaja-preview/","가짜 이름으로 만든 시연 화면. 휴대폰에서도 열리고 저장되지 않는다"]].concat(
+      [["1학년 선생님","sup"],["2학년 선생님","sup2"],["관리자","admin"],["1학년 학생","view"],["2학년 학생","view2"],["처음 시작하는 학생","fresh"]].map(function(x){return ["시연 "+x[0],"https://wmfsljy-coder.github.io/ungcheon-yaja-preview/?who="+x[1],"시연본을 "+x[0]+" 화면으로 바로 연다(가짜 이름, 저장 안 됨)"];}));
   }
   function maintain(){
     var have={};db.rows("설정").forEach(function(r){have[S(r["항목"])]=1;});
@@ -639,6 +660,8 @@ function make(db,env){
   function staff(a){if(a.kind!=="staff")fail("선생님만 할 수 있습니다.");}
   function admin(a){if(a.kind!=="staff"||a.grade!==ADMIN)fail("관리자만 할 수 있습니다.");}
   /* 선생님은 세 가지: 1학년 선생님, 2학년 선생님, 관리자. 관리자는 1·2학년 전체, 학년 선생님은 자기 학년 학생만 보고 찍는다 */
+  /* 상품권·통계 보기: 관리자와 담임 선생님. 담임은 담임 학년 학생만 본다. 배부 기록은 관리자만 */
+  function reader(a){staff(a);if(a.grade!==ADMIN&&!S(a.cls))fail("담임 선생님과 관리자만 볼 수 있어요.");}
   function yearsOf(a){return a.grade===ADMIN?YEARS.slice():(YEARS.indexOf(S(a.year))>=0?[S(a.year)]:[]);}
   function inScope(a,cls){return yearsOf(a).indexOf(S(cls).split("-")[0])>=0;}
   function scopeMsg(a){return S(a.year)?S(a.year)+"학년 선생님은 "+S(a.year)+"학년 학생만 볼 수 있어요.":"담당 학년이 정해지지 않았어요. 관리자 선생님께 문의해 주세요.";}
@@ -925,21 +948,21 @@ function make(db,env){
 
   /* ── 관리자: 상품권 ── */
   function giftList(a){
-    admin(a);
+    reader(a);
     var V=voucherWon(),T=tallyAll(),list=[],owedN=0,paidN=0,people=0;
     db.rows("명단").forEach(function(r){
-      var h=S(r["학번"]);if(!h)return;
+      var h=S(r["학번"]);if(!h||!inScope(a,r["반"]))return;
       var t=T(h);
       paidN+=t.got;
       if(t.can>0){owedN+=t.can;people++;}
       if(t.stamps>0||t.got>0)list.push({h:h,n:S(r["이름"]),c:S(r["반"]),stamps:t.stamps,stars:t.stars,left:t.left,can:t.can,got:t.got});
     });
     list.sort(function(x,y){return (y.can-x.can)||clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
-    var log=live("지급").map(function(r){
+    var log=live("지급").filter(function(r){return inScope(a,r["반"]);}).map(function(r){
       return {id:S(r["id"]),at:S(r["시각"]).slice(0,16),h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),qty:Number(r["매수"])||0,by:S(r["처리자"])};
     }).sort(function(x,y){return x.at<y.at?1:-1;}).slice(0,50);
     var td=today();
-    return {payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
+    return {canPay:a.grade===ADMIN,payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
   }
   function giftPay(a,p){
     admin(a);
@@ -960,10 +983,10 @@ function make(db,env){
 
   /* ── 관리자: 현황(이름 없이 숫자만) ── */
   function overview(a){
-    admin(a);
+    reader(a);
     var td=today(),wk=weekOf(td),V=voucherWon(),T=tallyAll(),cls={},weeks={},total=0,joined=0,owedN=0,paidN=0,students=0,planned=0,grid={};
     db.rows("명단").forEach(function(r){
-      var h=S(r["학번"]);if(!h)return;
+      var h=S(r["학번"]);if(!h||!inScope(a,r["반"]))return;
       students++;
       var c=S(r["반"]),t=T(h),pl=planOf(r);
       cls[c]=cls[c]||{cls:c,n:0,joined:0,plan:0,week:0,people:{}};
@@ -973,6 +996,7 @@ function make(db,env){
       owedN+=t.can;paidN+=t.got;
     });
     live("도장").forEach(function(r){
+      if(!inScope(a,r["반"])||!parseYmd(dayOf(r)))return;
       var d=dayOf(r),w=weekOf(d),h=S(r["학번"]),n=Number(r["개수"])||0;
       total+=n;
       var W=weeks[w]=weeks[w]||{wk:w,n:0,people:{}};W.n+=n;W.people[h]=1;
@@ -981,7 +1005,7 @@ function make(db,env){
         var c=cls[S(r["반"])];if(c){c.week+=n;c.people[h]=1;}
       }
     });
-    return {wk:wk,students:students,planned:planned,joined:joined,total:total,voucher:V,
+    return {scope:yearsOf(a),wk:wk,students:students,planned:planned,joined:joined,total:total,voucher:V,
       owedN:owedN,owedWon:owedN*V,paidN:paidN,paidWon:paidN*V,
       thisWeek:weeks[wk]?{n:weeks[wk].n,people:Object.keys(weeks[wk].people).length}:{n:0,people:0},
       days:DOW.map(function(dw,i){
@@ -990,6 +1014,25 @@ function make(db,env){
       }),
       classes:Object.keys(cls).sort(clsSort).map(function(k){var c=cls[k];return {cls:c.cls,n:c.n,plan:c.plan,joined:c.joined,week:c.week,people:Object.keys(c.people).length};}),
       weeks:Object.keys(weeks).sort().reverse().slice(0,8).map(function(k){return {wk:k,n:weeks[k].n,people:Object.keys(weeks[k].people).length};})};
+  }
+
+  /* 날짜별 참여 학생: 고른 주의 날마다·교시마다 도장 받은 학생 전부(신청 안 한 교시는 추가로 표시) */
+  function attendance(a,p){
+    reader(a);
+    var td=today(),thisWk=weekOf(td),wk=parseYmd(p.wk)?weekOf(S(p.wk)):thisWk;if(wk>thisWk)wk=thisWk;
+    var plan={};db.rows("명단").forEach(function(r){var h=S(r["학번"]);if(h)plan[h]=planOf(r);});
+    var days=DOW.map(function(dw,i){var y=addDays(wk,i);return {d:y,dow:dw,today:y===td,future:y>td,off:offDays()[y]||"",periods:schedule().map(function(pp){return {no:pp.no,list:[]};})};});
+    live("도장").forEach(function(r){
+      var d=dayOf(r);if(!parseYmd(d)||weekOf(d)!==wk||!inScope(a,r["반"]))return;
+      var i=dowIdx(d),pn=Number(r["교시"]);if(i<0||i>=DAYS||!days[i].periods[pn-1])return;
+      var h=S(r["학번"]),pl=plan[h]||[];
+      days[i].periods[pn-1].list.push({h:h,n:S(r["이름"]),c:S(r["반"]),m:S(r["방식"]),t:S(r["교사"]),k:Number(r["개수"])||1,x:pl.indexOf(DOW[i]+pn)<0});
+    });
+    days.forEach(function(D){
+      var all={};D.periods.forEach(function(P){P.list.sort(function(x,y){return clsSort(x.c,y.c)||(x.h<y.h?-1:1);});P.list.forEach(function(s){all[s.h]=1;});});
+      D.people=Object.keys(all).length;
+    });
+    return {wk:wk,thisWk:thisWk,scope:yearsOf(a),days:days};
   }
 
   /* ── 관리자: 사람 ── */
@@ -1096,6 +1139,7 @@ function make(db,env){
       case "giftPay":return giftPay(a,p);
       case "giftUndo":return giftUndo(a,p);
       case "overview":return overview(a);
+      case "attendance":return attendance(a,p);
       case "people":return people(a);
       case "teacherSet":return teacherSet(a,p);
       case "pinReset":return pinReset(a,p);
@@ -1309,11 +1353,16 @@ function bearSVG(pose){
     '<ellipse cx="37" cy="59" rx="6" ry="3.6" fill="#F2A48A" opacity=".75"/><ellipse cx="83" cy="59" rx="6" ry="3.6" fill="#F2A48A" opacity=".75"/>'+front+'</svg>';
 }
 function woong(pose,html){return '<div class="woong"><div class="bear">'+bearSVG(pose)+'</div><div class="bubble">'+html+'</div></div>';}
+/* 그림은 화면 전체 뒤에 옅게 까는 배경(교시마다 낮·노을·밤). 디데이는 맨 위 띠 */
 function heroHtml(){
-  var c=App.conf||{},src=HEROES[c.scene]||HEROES.day,d=c.dday;
-  var names={day:"가을 낮",sunset:"가을 노을",night:"가을 밤"};
-  return '<div class="hero '+(HEROES[c.scene]?c.scene:"day")+'">'+(src?'<img src="'+src+'" alt="'+(names[c.scene]||"가을")+'의 웅천읍성 성벽과 망루">':"")+
-    (d?'<div class="dday" role="note"><b>D-'+d.n+'</b><span>'+esc(d.name)+'</span></div>':"")+'</div>';
+  var c=App.conf||{},sc=HEROES[c.scene]?c.scene:"day",src=HEROES[sc]||HEROES.day,d=c.dday;
+  setBg(sc,src);
+  return d?'<div class="ddaybar" role="note"><b>D-'+d.n+'</b> '+esc(d.name)+'</div>':"";
+}
+function setBg(sc,src){
+  var b=document.getElementById("bgart");
+  if(!b){b=document.createElement("div");b.id="bgart";b.setAttribute("aria-hidden","true");document.body.insertBefore(b,document.body.firstChild);}
+  if(b.getAttribute("data-sc")!==sc){b.setAttribute("data-sc",sc);b.style.backgroundImage=src?'url("'+src+'")':"none";b.className=sc;}
 }
 function sayingHtml(){
   var s=App.conf&&App.conf.saying;if(!s||!s.t)return "";
@@ -1322,6 +1371,7 @@ function sayingHtml(){
 function motto(){return '<p class="motto"><b>애교 · 협동 · 정직</b></p>';}
 function topBar(right,noWall){
   var c=App.conf||{};
+  document.body.classList.remove("btabs");
   return '<header class="top"><div class="top-in"><img class="emblem" src="'+EMBLEM+'" alt="웅천고등학교 교표"><div class="mark"><small>'+esc(c.school||"")+' · 야간 자기주도학습'+(App.g?" · "+esc(App.g)+"학년":"")+'</small><b>'+esc(c.app||"")+'</b></div>'+(right||"")+'</div></header>'+(noWall?"":'<div class="wall" aria-hidden="true"></div>');
 }
 function rStop(title,msg,retry){
@@ -1553,11 +1603,14 @@ function rStudent(){
 /* ── 선생님·관리자 ── */
 function rStaff(){
   var V=App.view,isA=V.me.grade==="관리자",tabs=[["stamp","도장 표"],["qr","QR 띄우기"]];
-  if(isA)tabs=tabs.concat([["gift","상품권"],["overview","현황"],["people","사람"]]);
+  /* 담임 선생님도 상품권(보기)·통계를 본다. 사람 관리는 관리자만 */
+  if(isA)tabs=tabs.concat([["gift","상품권"],["overview","통계"],["people","사람"]]);
+  else if(V.me.cls)tabs=tabs.concat([["gift","상품권"],["overview","통계"]]);
   if(tabs.map(function(t){return t[0];}).indexOf(App.tab)<0)App.tab="stamp";
   var label=isA?"관리자 · 1·2학년 전체":V.me.year?V.me.year+"학년 선생님"+(V.me.cls?" · "+V.me.cls+"반 담임":""):"담당 학년 없음";
-  var nav='<nav class="tabs"><div class="tabs-in" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(App.tab===t[0])+'" data-a="tab" data-v="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div></nav>';
-  el("app").innerHTML=topBar('<div class="who"><b>'+esc(V.me.name)+'</b><span>'+esc(label)+'</span></div>',true)+nav+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="wrap" id="pane"></main>';
+  var nav='<nav class="tabs bottom" aria-label="선생님 메뉴"><div class="tabs-in" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(App.tab===t[0])+'" data-a="tab" data-v="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div></nav>';
+  el("app").innerHTML=topBar('<div class="who"><b>'+esc(V.me.name)+'</b><span>'+esc(label)+'</span></div>',true)+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="wrap" id="pane"></main>'+nav;
+  document.body.classList.add("btabs");
   paintTab();
 }
 function paintTab(){
@@ -1833,15 +1886,15 @@ function paintGift(){
     '<div class="stat"><b>'+G.people+'명</b><span>지금 받을 학생</span></div>'+
     '<div class="stat"><b>'+G.owedN+'매</b><span>나눠 줄 상품권<br>'+won(G.owedWon)+'</span></div>'+
     '<div class="stat"><b>'+G.paidN+'매</b><span>지금까지 준 상품권<br>'+won(G.paidWon)+'</span></div></div>'+
-    '<section class="card"><div class="head"><h2>금요일 배부</h2><span class="hint">'+(G.payDay?"오늘이 배부일이에요.":"이번 배부일: "+md(G.friday)+"(금)")+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
+    '<section class="card"><div class="head"><h2>금요일 배부</h2><span class="hint">'+(G.payDay?"오늘이 배부일이에요.":"이번 배부일: "+md(G.friday)+"(금)")+(G.canPay?'':' · 배부 기록은 관리자 선생님이 해요')+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
     '<div class="row" style="margin-bottom:10px"><input type="search" id="q2" placeholder="이름이나 학번으로 찾기" value="'+esc(q)+'" style="flex:1;min-width:180px" aria-label="이름이나 학번으로 찾기">'+
     '<button class="chip" data-a="gift-all" aria-pressed="'+all+'">모두 보기</button></div>'+
     (list.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">모은 도장</th><th class="r">남은 별</th><th class="r">받음</th><th></th></tr></thead><tbody>'+list.map(function(x){
-      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
+      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0&&G.canPay?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">'+(q?"찾는 학생이 없어요.":"지금 받을 학생이 없어요.")+'</div>')+'</section>'+
     '<section class="card"><div class="head"><h2>최근 배부 기록</h2></div>'+
     (G.log.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">매수</th><th>처리</th><th></th></tr></thead><tbody>'+G.log.map(function(l){
-      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r"><button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button></td></tr>';
+      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r">'+(G.canPay?'<button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">아직 배부 기록이 없어요.</div>')+'</section>'+footer();
 }
 function giftCsv(){
@@ -1859,6 +1912,7 @@ function paintOverview(){
     '<div class="stat"><b>'+O.thisWeek.n+'개</b><span>이번 주 도장<br>참여 학생 '+O.thisWeek.people+'명</span></div>'+
     '<div class="stat"><b>'+O.owedN+'매</b><span>이번 주 줄 상품권<br>'+won(O.owedWon)+'</span></div>'+
     '<div class="stat"><b>'+O.paidN+'매</b><span>지금까지 준 상품권<br>'+won(O.paidWon)+'</span></div></div>'+
+    '<section class="card" id="att"><div class="loading">날짜별 참여 학생을 불러오는 중이에요…</div></section>'+
     '<section class="card"><div class="head"><h2>이번 주 교시별 참여 학생</h2><span class="end">'+wkLabel(O.wk)+'</span></div><div class="tw"><table class="t"><thead><tr><th></th>'+O.days.map(function(d){return '<th class="r">'+d.dow+' '+md(d.d)+'</th>';}).join("")+'</tr></thead><tbody>'+
       c.periods.map(function(p,i){return '<tr><td>'+p.no+'교시</td>'+O.days.map(function(d){return '<td class="r">'+d.counts[i]+'</td>';}).join("")+'</tr>';}).join("")+'</tbody></table></div></section>'+
     '<section class="card"><div class="head"><h2>반별 이번 주</h2></div><div class="tw"><table class="t"><thead><tr><th>반</th><th class="r">신청</th><th class="r">앱 들어옴</th><th class="r">도장 받은 학생</th><th class="r">도장</th></tr></thead><tbody>'+O.classes.map(function(x){
@@ -1867,6 +1921,25 @@ function paintOverview(){
     '<section class="card"><div class="head"><h2>최근 주별</h2></div>'+(O.weeks.length?'<div class="tw"><table class="t"><thead><tr><th>주</th><th class="r">도장 받은 학생</th><th class="r">도장</th></tr></thead><tbody>'+O.weeks.map(function(w){
       return '<tr><td>'+wkLabel(w.wk)+'</td><td class="r">'+w.people+'</td><td class="r">'+w.n+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">아직 찍은 도장이 없어요.</div>')+'</section>'+footer();
+  loadAtt(App.attWk||"");
+}
+/* 날짜별 참여 학생: 날마다·교시마다 도장 받은 학생 전부 */
+function loadAtt(wk){
+  var box=el("att");if(box&&App.data.att&&App.data.att.wk===wk)return paintAtt();
+  tcall("attendance",{wk:wk}).then(function(r){App.data.att=r;App.attWk=r.wk;paintAtt();}).catch(function(e){var b=el("att");if(b)b.innerHTML='<div class="err">'+esc(e.message)+'</div>';});
+}
+function paintAtt(){
+  var A=App.data.att,box=el("att");if(!box||!A)return;
+  var head='<div class="head"><h2>날짜별 참여 학생</h2><span class="end"><button class="arrow" data-a="att-wk" data-v="-7" aria-label="지난주">◀</button> <b>'+wkLabel(A.wk)+'</b> <button class="arrow" data-a="att-wk" data-v="7" aria-label="다음 주"'+(A.wk>=A.thisWk?" disabled":"")+'>▶</button></span></div>'+
+    '<p class="hint" style="margin-bottom:6px">'+(A.scope.length>1?"1·2학년 전체":A.scope.join("")+"학년")+' · 도장 받은 학생을 날짜·교시별로 모두 보여 줘요. <span class="xtag">추가</span>는 신청하지 않은 교시에 온 학생, <span class="ttag">선생님</span>은 선생님이 찍어 준 도장이에요.</p>';
+  var days=A.days.map(function(D){
+    var title='<b>'+D.dow+' '+md(D.d)+'</b> '+(D.off?'<small>쉬는 날('+esc(D.off)+')</small>':D.future?'<small>아직</small>':'<small>참여 '+D.people+'명</small>');
+    var body=D.periods.map(function(P){
+      return '<div class="attp"><span class="pn">'+P.no+'교시 <small>'+P.list.length+'명</small></span><span class="nm">'+(P.list.length?P.list.map(function(s){return '<span class="who">'+esc(s.n)+'<small>'+esc(s.c)+'</small>'+(s.x?'<span class="xtag">추가</span>':'')+(s.m!=="QR"?'<span class="ttag" title="'+esc(s.t)+' 선생님">선생님</span>':'')+'</span>';}).join(""):'<span class="hint">없음</span>')+'</span></div>';
+    }).join("");
+    return '<details class="attd"'+(D.today||(!A.days.some(function(x){return x.today;})&&D.people)?' open':'')+'><summary>'+title+'</summary>'+body+'</details>';
+  }).join("");
+  box.innerHTML=head+days;
 }
 
 /* 관리자: 사람 */
@@ -1917,6 +1990,7 @@ document.addEventListener("click",function(ev){
   if(a==="f-grade"){App.filter.grade=d.v;App.filter.ban="1";saveFilter();return paintStamp();}
   if(a==="f-ban"){App.filter.ban=d.v;saveFilter();return paintStamp();}
   if(a==="f-plan"){App.onlyPlan=!App.onlyPlan;return paintStamp();}
+if(a==="att-wk"){var aw0=(App.data.att&&App.data.att.wk)||"";var nd=new Date(Date.parse(aw0+"T00:00:00Z")+Number(d.v)*864e5);App.attWk=nd.toISOString().slice(0,10);App.data.att=null;return loadAtt(App.attWk);}
 if(a==="pick-n"){App.stampN=Number(d.v)||0;try{localStorage.setItem("ungcheon-yaja-pickn",String(App.stampN));}catch(e){}return paintStamp();}
 if(a==="f-came"){App.filter={mode:"came"};App.q="";return paintStamp();}
 if(a==="f-extra"){App.filter={mode:"extra"};App.q="";return paintStamp();}
