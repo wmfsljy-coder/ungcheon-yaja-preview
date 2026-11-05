@@ -182,6 +182,8 @@ details.hist summary{cursor:pointer;font-family:var(--title);font-size:18px;min-
 .pcg button[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#fff;font-weight:700}
 #queue-note{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:60;background:#1f3b2d;color:#fff;border-radius:14px;padding:10px 16px;max-width:92%;font-size:14px;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.25);text-align:center}
 #queue-note b{display:block;font-size:15px}
+.praise{margin:8px 0;padding:8px 10px;border-radius:10px;background:var(--gold-soft);border:1px solid var(--gold-line);font-size:14px;line-height:1.6}
+.praise b{color:var(--gold)}
 .rp{display:block;margin-top:3px;font-size:13px;color:var(--ink);line-height:1.5}
 .rrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}.rrow:first-child{border-top:0}
 .rinfo{flex:1;min-width:0}.rbtn{display:flex;flex-direction:column;gap:4px;flex:none}.rbtn .btn{min-width:64px}
@@ -453,7 +455,8 @@ var HEAD={
   "문구":["문구","출처"],
   "링크":["구분","링크","설명"],
   "마감":["id","날짜","교시","학년","교사","시각","취소","취소자","취소시각"],
-  "신청기록":["시각","학번","이름","반","전","후","출처"]
+  "신청기록":["시각","학번","이름","반","전","후","출처"],
+  "칭찬":["id","날짜","학번","이름","반","개수","교사","이유","시각","취소","취소자","취소시각"]
 };
 /* 문구 탭이 비어 있을 때 쓰는 기본 문구(노력·인내·성실이 날마다 돌아가며 나온다). 출처가 분명한 고전·속담과 학교 문구만 둔다. [문구, 출처, 주제] */
 var SAYINGS=[["남이 한 번에 해내면 나는 백 번 하고, 남이 열 번에 해내면 나는 천 번 한다.","『중용』","노력"], ["수적천석: 떨어지는 물방울이 끝내 바위를 뚫는다.","고사성어","인내"], ["성실함은 하늘의 도리이고, 성실하려 애쓰는 것은 사람의 도리다.","『중용』","성실"], ["하늘의 운행은 굳세니, 군자는 스스로 힘써 쉬지 않는다.","『주역』","노력"], ["마부작침: 도끼를 갈아 바늘을 만든다.","고사성어","인내"], ["공든 탑이 무너지랴.","속담","성실"], ["우공이산: 꾸준히 힘쓰면 산도 옮길 수 있다.","고사성어, 『열자』","노력"], ["큰 그릇은 늦게 이루어진다.","대기만성, 『도덕경』","인내"], ["작은 일에도 정성을 다하면 그 정성이 겉으로 드러난다.","『중용』","성실"], ["천 리 길도 한 걸음부터 시작된다.","노자, 『도덕경』","노력"], ["칠전팔기: 일곱 번 넘어져도 여덟 번 일어난다.","고사성어","인내"], ["티끌 모아 태산.","속담","성실"], ["형설지공: 반딧불과 눈빛에 비춰 공부하던 그 정성으로.","고사성어","노력"], ["낙숫물이 댓돌을 뚫는다.","속담","인내"], ["우물을 파도 한 우물을 파라.","속담","성실"], ["뜻이 있는 곳에 길이 있다.","속담","노력"], ["빨리 가는 것보다 멈추지 않는 것이 먼저예요.","","인내"], ["재능은 빌릴 수 없어도 성실은 오늘부터 내 것이 돼요.","","성실"], ["주경야독: 낮에는 밭을 갈고 밤에는 글을 읽는다.","고사성어","노력"], ["힘든 날에 앉아 있던 한 시간이 가장 오래 남아요.","","인내"], ["수불석권: 손에서 책을 놓지 않는다.","고사성어","성실"], ["어제보다 한 쪽 더, 그것이면 충분해요.","","노력"], ["절차탁마: 깎고 다듬고 쪼고 갈아야 빛이 난다.","고사성어, 『시경』","인내"], ["도장 하나는 작아도, 쌓인 도장은 내 성실함의 기록이에요.","","성실"], ["오늘 앉아 있는 이 한 교시가 내일의 나를 만들어요.","","노력"], ["지금 참고 앉아 있는 시간이 시험지 앞에서 나를 지켜 줘요.","","인내"], ["매일 같은 시간, 같은 자리. 그게 실력이 돼요.","","성실"]];
@@ -465,6 +468,9 @@ var CONF0=[
   ["쉬는분","10","쉬는 시간 길이(분)"],
   ["교시도장","1,2,2","교시마다 찍히는 도장 수. 1교시부터 쉼표로 나눠 적습니다. 적은 개수가 교시 수입니다."],
   ["별도장","5","도장 몇 개가 모이면 별 1개가 되는지"],
+  ["단계도장","5,10,20,30,40","웅천읍성 쌓기 단계(주춧돌·성벽·성가퀴·견룡문·웅천읍성)에 닿는 도장 수. QR·선생님이 찍은 도장만 셉니다(보너스·칭찬 도장은 빼고)."],
+  ["단계보너스","0","단계에 닿을 때마다 더 주는 도장 수. 0이면 주지 않습니다."],
+  ["칭찬한도","1","선생님이 한 학생에게 한 주에 줄 수 있는 칭찬 도장 수. 0이면 칭찬 도장을 쓰지 않습니다."],
   ["상품권금액","5000","별 1개로 받는 문화상품권 1매 금액(원)"],
   ["QR열림분","1","종 치기 몇 분 전부터 도장을 찍을 수 있는지"],
   ["QR닫힘분","10","종 친 뒤 몇 분까지 도장을 찍을 수 있는지(쉬는 시간)"],
@@ -869,10 +875,20 @@ function make(db,env){
 
   /* ── 도장 → 별 → 상품권 ──
      도장을 찍을 때 그 교시 도장 수를 줄에 적어 둔다. 나중에 설정을 바꿔도 이미 찍은 도장 수는 그대로다 */
+  /* 웅천읍성 단계: 설정 '단계도장'(기본 5,10,20,30,40) */
+  function stageList(){
+    var t=S(conf()["단계도장"]).split(/[,\s]+/).map(Number).filter(function(x){return x>0;});if(!t.length)t=[5,10,20,30,40];
+    var names=["주춧돌","성벽","성가퀴","견룡문","웅천읍성"];
+    return [[0,"터 닦기"]].concat(t.slice(0,5).map(function(v,i){return [v,names[i]];}));
+  }
   function tallyAll(){
-    var star=starN(),thisWk=weekOf(today()),per={},pu={},pn={},pw={};
+    var star=starN(),thisWk=weekOf(today()),per={},pu={},pn={},pw={},bonusN=num0("단계보너스",0),ths=stageList().slice(1).map(function(s){return s[0];});
     live("도장").forEach(function(r){
       var h=S(r["학번"]);(per[h]=per[h]||[]).push({d:dayOf(r),p:Number(r["교시"])||0,n:Number(r["개수"])||0});
+    });
+    /* 칭찬 도장: 선생님이 주는 도장(학생당 한 주 '칭찬한도'개). 별에는 들어가고 읍성 단계에는 안 든다 */
+    live("칭찬").forEach(function(r){
+      var h=S(r["학번"]);(per[h]=per[h]||[]).push({d:normDate(r["날짜"])||S(r["날짜"]).slice(0,10),p:9,n:Number(r["개수"])||1,praise:true});
     });
     live("지급").forEach(function(r){
       var h=S(r["학번"]),st=Number(r["별"])||0;
@@ -880,16 +896,20 @@ function make(db,env){
       if(weekOf(S(r["시각"]).slice(0,10))===thisWk)pw[h]=(pw[h]||0)+st;
     });
     /* 날짜 순서로 도장을 쌓아, 별 기준을 넘긴 도장이 찍힌 주를 그 별의 주로 본다.
-       이번 주에 생긴 별만 받을 수 있다. 월요일 0시가 되면 지난주 별은 사라지지만 도장 수와 남은 자투리는 이어진다 */
+       이번 주에 생긴 별만 받을 수 있다. 월요일 0시가 되면 지난주 별은 사라지지만 도장 수와 남은 자투리는 이어진다.
+       읍성 단계(QR·선생님 도장만 셈)에 닿는 순간 '단계보너스'개를 그 자리에서 더 준다 */
     return function(h){
-      var list=(per[h]||[]).slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.p-b.p;}),cum=0,stars=0,fresh=0;
+      var list=(per[h]||[]).slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.p-b.p;}),cum=0,stars=0,fresh=0,real=0,bonus=0,praise=0,praiseWk=0;
       list.forEach(function(x){
-        var made=Math.floor((cum+x.n)/star)-Math.floor(cum/star);
-        cum+=x.n;stars+=made;
+        var add=x.n;
+        if(x.praise){praise+=x.n;if(weekOf(x.d)===thisWk)praiseWk+=x.n;}
+        else{var before=real;real+=x.n;if(bonusN){var crossed=ths.filter(function(t){return before<t&&real>=t;}).length;add+=crossed*bonusN;bonus+=crossed*bonusN;}}
+        var made=Math.floor((cum+add)/star)-Math.floor(cum/star);
+        cum+=add;stars+=made;
         if(weekOf(x.d)===thisWk)fresh+=made;
       });
       var left=Math.max(0,fresh-(pw[h]||0)),used=pu[h]||0;
-      return {stamps:cum,stars:stars,used:used,left:left,expired:Math.max(0,stars-used-left),inStar:cum%star,toNext:star-(cum%star),can:left,got:pn[h]||0};
+      return {stamps:cum,real:real,bonus:bonus,praise:praise,praiseWk:praiseWk,stars:stars,used:used,left:left,expired:Math.max(0,stars-used-left),inStar:cum%star,toNext:star-(cum%star),can:left,got:pn[h]||0};
     };
   }
 
@@ -902,9 +922,8 @@ function make(db,env){
   /* 학생 화면용: 우리 학년 그 교시가 마감됐으면 도장 시간이 아닌 것으로 */
   function qrFor(a){var q=qrInfo();if(q.open&&closedRow(today(),q.period,yearOf(a.row))){q.open=false;q.ended=true;}return q;}
   /* 웅천읍성 쌓기: 모은 도장(전체 기간) 수로 단계가 오른다 */
-  var STAGES=[[0,"터 닦기"],[10,"주춧돌"],[30,"성벽"],[60,"성가퀴"],[100,"견룡문"],[150,"웅천읍성"]];
   function stageOf(n){
-    var cur=STAGES[0],next=null;
+    var STAGES=stageList(),cur=STAGES[0],next=null;
     for(var i=0;i<STAGES.length;i++){if(n>=STAGES[i][0])cur=STAGES[i];else{next=STAGES[i];break;}}
     return {n:n,cur:{at:cur[0],name:cur[1]},next:next?{at:next[0],name:next[1]}:null,list:STAGES.map(function(s){return {at:s[0],name:s[1]};})};
   }
@@ -942,7 +961,7 @@ function make(db,env){
     var history=Object.keys(weeks).filter(function(w){return w!==wk;}).sort().reverse().map(function(w){return weeks[w];});
     var cur=weeks[wk]||{n:0},T0=tallyAll()(a.id);
     return {kind:"student",me:{hakbun:a.id,name:a.name,cls:a.cls},qr:qrFor(a),today:td,wk:wk,days:days,plan:planOf(a.row),cells:cells,
-      weekN:cur.n,history:history,tally:T0,stage:stageOf(T0.stamps),cal:calendarOf(daily),dayMax:schedule().reduce(function(s,x){return s+x.n;},0)};
+      weekN:cur.n,history:history,tally:T0,stage:(function(){var s=stageOf(T0.real);s.bonusN=num0("단계보너스",0);s.bonus=T0.bonus;return s;})(),praise:praiseOf(a.id,weekOf(today())),cal:calendarOf(daily),dayMax:schedule().reduce(function(s,x){return s+x.n;},0)};
   }
   /* QR로 들어온 학생: 그 교시 도장이 찍히고 자기 도장판이 열린다 */
   /* 학교 밖에서 도장을 찍으려 한 기록: 주소(찾을 수 있으면)·좌표·학교와의 거리·지도 링크. 한 학생은 그날 그 교시에 한 줄만 */
@@ -954,6 +973,28 @@ function make(db,env){
     db.add("위치기록",{"시각":stampOf(now()),"날짜":P.date,"교시":String(P.period),"학번":a.id,"이름":a.name,"반":a.cls,"주소":place,
       "거리m":String(Math.round(far)),"오차m":String(Math.round(typeof p.acc==="number"&&p.acc>0?p.acc:0)),"위도":String(lat),"경도":String(lng),
       "지도":"https://www.google.com/maps/search/?api=1&query="+lat+","+lng});
+  }
+  /* ── 칭찬 도장: 선생님(볼 수 있는 학년)이 열심히 하는 학생에게, 학생당 한 주 '칭찬한도'개까지. 이유 한 줄을 남긴다 ── */
+  function praiseOf(h,wk){return live("칭찬").filter(function(r){return S(r["학번"])===String(h)&&(!wk||weekOf(normDate(r["날짜"])||S(r["날짜"]).slice(0,10))===wk);}).map(function(r){return {id:S(r["id"]),d:normDate(r["날짜"])||S(r["날짜"]).slice(0,10),t:S(r["교사"]),why:S(r["이유"]),n:Number(r["개수"])||1};});}
+  function praiseGive(a,p){
+    staff(a);
+    var lim=num0("칭찬한도",1);if(lim<1)fail("칭찬 도장을 쓰지 않도록 설정되어 있어요.");
+    var hb=S(p.hakbun),s=rowOf("명단","학번",hb);if(!s)fail("명단에 없는 학번입니다.");
+    if(!inScope(a,s["반"]))fail(scopeMsg(a));
+    var why=S(p.reason).replace(/\s+/g," ").slice(0,60);if(why.length<2)fail("칭찬 이유를 한 줄 적어 주세요.");
+    var td=today(),used=praiseOf(hb,weekOf(td)).reduce(function(t,x){return t+x.n;},0);
+    if(used>=lim)fail(S(s["이름"])+" 학생은 이번 주 칭찬 도장을 이미 받았어요(한 주 "+lim+"개까지).");
+    var id="p"+env.uid();
+    db.add("칭찬",{"id":id,"날짜":td,"학번":hb,"이름":S(s["이름"]),"반":S(s["반"]),"개수":"1","교사":a.name,"이유":why,"시각":stampOf(now())});
+    return {ok:true,id:id};
+  }
+  function praiseUndo(a,p){
+    staff(a);
+    var r=rowOf("칭찬","id",S(p.id));if(!r||S(r["취소"])==="Y")fail("칭찬 기록을 찾지 못했어요.");
+    if(!inScope(a,r["반"]))fail(scopeMsg(a));
+    if(a.grade!==ADMIN&&S(r["교사"])!==a.name&&!S(a.cls))fail("준 선생님, 담임 선생님, 관리자만 무를 수 있어요.");
+    db.set("칭찬","id",S(p.id),{"취소":"Y","취소자":a.name,"취소시각":stampOf(now())});
+    return {ok:true};
   }
   /* 짧은 쓰기 잠금: 앱(Code.gs)이 env.commit 을 주면 그 안에서, 시험에서는 그냥 실행 */
   function commitW(fn){return env.commit?env.commit(fn):fn();}
@@ -1038,7 +1079,8 @@ function make(db,env){
         past:schedule().map(function(p){return y<td||(y===td&&minuteOf(now())>=p.close);})};
     });
     return {kind:"staff",me:{name:a.name,grade:a.grade,year:a.grade===ADMIN?"":a.year,cls:a.cls,years:yearsOf(a)},today:td,wk:wk,thisWk:thisWk,canPrev:true,days:days,roster:roster,
-      rooms:Object.keys(rooms).sort().map(function(k){return {name:k,n:rooms[k]};}),stamps:stamps,away:away,canEdit:a.grade===ADMIN||!!S(a.cls)};
+      rooms:Object.keys(rooms).sort().map(function(k){return {name:k,n:rooms[k]};}),stamps:stamps,away:away,canEdit:a.grade===ADMIN||!!S(a.cls),praiseLim:num0("칭찬한도",1),stampMax:Math.max.apply(null,schedule().map(function(x){return x.n;})),
+      praise:live("칭찬").filter(function(r){return inScope(a,r["반"])&&weekOf(normDate(r["날짜"])||S(r["날짜"]).slice(0,10))===weekOf(today());}).map(function(r){return {id:S(r["id"]),h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),t:S(r["교사"]),why:S(r["이유"]),d:normDate(r["날짜"])||S(r["날짜"]).slice(0,10)};})};
   }
   function stamp(a,p){
     staff(a);
@@ -1277,6 +1319,8 @@ function make(db,env){
       case "unstamp":return unstamp(a,p);
       case "deviceReset":return deviceReset(a,p);
       case "rosterEdit":return rosterEdit(a,p);
+      case "praiseGive":return praiseGive(a,p);
+      case "praiseUndo":return praiseUndo(a,p);
       case "giftList":return giftList(a);
       case "giftPay":return giftPay(a,p);
       case "giftUndo":return giftUndo(a,p);
@@ -1405,6 +1449,8 @@ var DemoServer=(function(){
   C().maintain();
   function conf(k,v){T["설정"].filter(function(r){return r["항목"]===k;})[0]["값"]=v;}
   conf("1학년코드","DEMOFIRS");conf("2학년코드","DEMOSECD");conf("관리자코드","DEMOADMN");
+  /* 실제 운영과 같게: 교시당 1개, 읍성 단계마다 보너스 1개, 칭찬 도장 주 1개 */
+  conf("교시도장","1,1,1");conf("단계보너스","1");conf("칭찬한도","1");
 
   /* 가짜 학생: 1·2학년 7반씩, 반마다 10명만. 일부만 신청, 1학년은 장소도 준다 */
   var SUR="김이박최정강조윤장임한오서신권황안송류전".split(""),NAME=["하늘","바다","가람","누리","보라","새롬","슬기","아름","우람","은별","지호","태양","한결","해솔","다온","로운","시우","예린","주원","서하"];
@@ -1816,7 +1862,7 @@ function rStudent(){
       (N.extra?"신청하지 않은 교시예요. 추가 참여로 기록했어요.":"수고했어요.")+
       (N.registered?" 이 폰이 내 폰으로 등록됐어요. 앞으로 이 폰의 같은 앱으로 찍어 주세요.":"")+'</div></div>';
     /* 이번 도장으로 성 쌓기 단계가 올랐으면 함께 축하 */
-    if(!N.already&&V.stage&&V.stage.cur.at>0&&V.stage.n-N.n<V.stage.cur.at)banner+='<div class="woong done" role="status"><div class="bear">'+bearSVG("yay")+'</div><div class="bubble"><b>웅천읍성 \''+esc(V.stage.cur.name)+'\' 단계에 올랐어요!</b>도장 '+V.stage.cur.at+'개를 모았어요. 계속 쌓아 가요.</div></div>';
+    if(!N.already&&V.stage&&V.stage.cur.at>0&&V.stage.n-N.n<V.stage.cur.at)banner+='<div class="woong done" role="status"><div class="bear">'+bearSVG("yay")+'</div><div class="bubble"><b>웅천읍성 \''+esc(V.stage.cur.name)+'\' 단계에 올랐어요!</b>도장 '+V.stage.cur.at+'개를 모았어요.'+(V.stage.bonusN?' 보너스 도장 <b>+'+V.stage.bonusN+'개</b>를 더 받았어요!':' 계속 쌓아 가요.')+'</div></div>';
   }
   var head='<thead><tr><th class="lab"></th>'+V.days.map(function(d){return '<th class="'+(d.today?"today":"")+'">'+d.dow+'<small>'+(d.today?"오늘":md(d.d))+'</small></th>';}).join("")+'</tr></thead>';
   var rows=c.periods.map(function(p){
@@ -1848,7 +1894,7 @@ function rStudent(){
     castle='<section class="card castle"><div class="head"><h2>웅천읍성 쌓기</h2><span class="end">'+esc(SG.cur.name)+' 단계</span></div>'+
       '<div class="cbig"><b>'+SG.n+'</b><small>개 모은 도장</small></div>'+
       '<div class="cbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div>'+
-      '<p class="hint" style="margin-top:6px">'+(SG.next?"다음 단계 <b>"+esc(SG.next.name)+"</b>까지 도장 <b>"+(SG.next.at-SG.n)+"개</b>":"웅천읍성을 다 쌓았어요! 계속 쌓아 가요.")+'</p>'+
+      '<p class="hint" style="margin-top:6px">'+(SG.next?"다음 단계 <b>"+esc(SG.next.name)+"</b>까지 도장 <b>"+(SG.next.at-SG.n)+"개</b>":"웅천읍성을 다 쌓았어요! 계속 쌓아 가요.")+(SG.bonusN?' · 단계에 오를 때마다 보너스 도장 +'+SG.bonusN+'개'+(SG.bonus?' (지금까지 '+SG.bonus+'개)':''):'')+'</p>'+
       '<div class="csteps">'+SG.list.filter(function(s){return s.at>0;}).map(function(s){var cl=SG.n>=s.at?(s.at===SG.cur.at?"cur":"done"):"";return '<span class="'+cl+'">'+esc(s.name)+' '+s.at+'</span>';}).join("")+'</div>'+
       '<div class="bricks" aria-label="성벽 돌 '+SG.n+'개">'+br+'</div>'+
       '<p class="hint" style="margin-top:6px"><span class="gcolor"></span>돌은 우리 학년 체육복 색, <b>'+gradeNo+'학년 '+gColor+'</b>이에요. 도장 하나가 돌 하나, 우리 학년 성을 함께 쌓아요.</p></section>';
@@ -1880,7 +1926,8 @@ function rStudent(){
     castle+'<section class="card"><div class="stars"><span class="row" style="gap:3px;flex-wrap:wrap">'+stars+'</span><span class="big">이번 주 별 '+T.left+'개</span></div>'+
     '<div class="track" aria-hidden="true">'+track+'</div>'+
     '<p class="hint">다음 별까지 도장 <b>'+T.toNext+'개</b> · 지금까지 모은 도장 '+T.stamps+'개</p>'+
-    '<p class="hint">별은 담임 선생님께 가서 문화상품권으로 받아요. 받지 않은 별은 월요일 0시에 사라지고 도장은 남아요.'+(T.expired?' 지금까지 사라진 별 '+T.expired+'개.':'')+'</p>'+gift+got+'</section>'+
+    '<p class="hint">별은 담임 선생님께 가서 문화상품권으로 받아요. 받지 않은 별은 월요일 0시에 사라지고 도장은 남아요.'+(T.expired?' 지금까지 사라진 별 '+T.expired+'개.':'')+'</p>'+
+      ((V.praise||[]).length?'<div class="praise">'+V.praise.map(function(x){return '<div><b>칭찬 도장 +'+x.n+'</b> '+esc(x.t)+' 선생님 · '+esc(x.why)+'</div>';}).join("")+'</div>':'')+gift+got+'</section>'+
     calH+hist+'<p class="rule">'+esc(ruleText())+'</p>'+pinBox()+'<div class="foot"><button class="linkbtn" data-a="logout-stu">로그아웃</button></div></div></div>'+motto()+'</main>';
 }
 
@@ -1963,7 +2010,7 @@ function paintStamp(){
   var isThis=V.wk===V.thisWk;
   pane.innerHTML=sayingHtml()+'<div class="chips">'+mine+gps+rooms+'<button class="chip" data-a="f-class" aria-pressed="'+(f.mode==="class")+'">반별로 찾기</button><button class="chip" data-a="f-plan" aria-pressed="'+App.onlyPlan+'">이날 신청자만</button></div>'+
     '<div class="chips"><button class="chip" data-a="f-came" aria-pressed="'+(f.mode==="came")+'">이날 온 학생 전부<small id="cnt-came"></small></button><button class="chip" data-a="f-extra" aria-pressed="'+(f.mode==="extra")+'">신청 안 하고 온 학생<small id="cnt-extra"></small></button></div>'+classChips()+
-    '<div class="pickn" role="group" aria-label="찍을 도장 수"><span>찍을 도장</span>'+[[0,"교시대로"],[1,"1개"],[2,"2개"]].map(function(o){return '<button class="chip" data-a="pick-n" data-v="'+o[0]+'" aria-pressed="'+((App.stampN||0)===o[0])+'">'+o[1]+'</button>';}).join("")+'</div>'+
+    ((V.stampMax||2)>1?'<div class="pickn" role="group" aria-label="찍을 도장 수"><span>찍을 도장</span>'+[[0,"교시대로"],[1,"1개"],[2,"2개"]].map(function(o){return '<button class="chip" data-a="pick-n" data-v="'+o[0]+'" aria-pressed="'+((App.stampN||0)===o[0])+'">'+o[1]+'</button>';}).join("")+'</div>':'')+
     '<input type="search" id="q" placeholder="이름이나 학번으로 찾기" value="'+esc(App.q)+'" autocomplete="off" aria-label="이름이나 학번으로 찾기">'+
     '<div class="bar">'+(V.canPrev?'<button class="arrow" data-a="wk" data-v="-7" aria-label="지난주">◀</button>':"")+
     '<span class="wkn">'+wkLabel(V.wk)+'</span>'+(V.canPrev?'<button class="arrow" data-a="wk" data-v="7" aria-label="다음 주"'+(isThis?" disabled":"")+'>▶</button>':"")+
@@ -1971,11 +2018,16 @@ function paintStamp(){
     '<div class="daytabs" id="daytabs"></div><div class="daysum" id="daysum" aria-live="polite"></div><div id="away"></div>'+
     '<div class="sheet" id="sheet"></div>'+
     '<p class="hint" id="info"></p>'+
+    ((V.praiseLim||0)>0?'<details class="pin" id="praise-box"'+(App.praiseOpen?' open':'')+'><summary>칭찬 도장 주기 (학생당 한 주 '+V.praiseLim+'개)</summary><div class="card" style="margin-top:8px">'+
+      '<p class="hint" style="margin-bottom:8px">열심히 참여하는 학생에게 도장을 하나 더 줘요. 이유를 한 줄 남기면 학생 화면에 선생님 이름과 함께 나와요. 읍성 단계에는 들어가지 않고 별에만 들어가요.</p>'+
+      '<input type="search" id="q6" placeholder="이름이나 학번으로 찾기" aria-label="칭찬할 학생 찾기"><div id="q6-out" style="margin-top:8px"></div>'+
+      '<h3 class="rh" style="margin-top:12px">이번 주 칭찬 도장</h3><div id="praise-list"></div></div></details>':"")+
     '<details class="pin"><summary>학생 폰 등록 풀기</summary><div class="card" style="margin-top:8px"><p class="hint" style="margin-bottom:8px">학생이 폰이나 앱을 바꿔 도장이 안 찍힐 때 풀어 주세요. 다음에 찍는 폰이 새 내 폰이 돼요.</p>'+
     '<input type="search" id="q4" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q4-out" style="margin-top:8px"></div></div></details>'+
 
     pinBox()+footer();
-  paintSheet();
+  paintSheet();paintPraise();
+  var pb=el("praise-box");if(pb)pb.addEventListener("toggle",function(){App.praiseOpen=pb.open;});
 }
 function cellHtml(x,day,no){
   var m=marks(day.d,no)[x.h],isPlan=x.p.indexOf(day.dow+no)>=0,open=day.open[no-1],past=day.past&&day.past[no-1];
@@ -2028,7 +2080,7 @@ function paintInfo(){
       return '<li><b>'+esc(r.n)+'</b> <small>'+esc(r.c)+' · '+r.p+'교시 · '+esc(r.at)+'</small><br>'+(r.place?esc(r.place)+' · ':'')+'학교에서 '+km+(r.map?' · <a href="'+esc(r.map)+'" target="_blank" rel="noopener">지도</a>':'')+(later?' · <span class="later">그 뒤 도장 있음</span>':'')+'</li>';
     }).join("")+'</ul></details>':"";
   }
-  if(i)i.textContent=day.off?"이날은 쉬는 날이에요("+day.off+").":"칸 위 숫자는 도장 받은 학생/신청 학생이에요. 점선은 신청 칸, 붉은 점선은 QR 시간이 지났는데 도장이 없는 칸, '추가'는 신청하지 않은 교시에 와서 받은 도장이에요. 선생님은 언제 어디서든 칸을 눌러 찍고(위의 '찍을 도장'에서 1개·2개를 고름), 도장을 다시 누르면 무를 수 있어요.";
+  if(i)i.textContent=day.off?"이날은 쉬는 날이에요("+day.off+").":"칸 위 숫자는 도장 받은 학생/신청 학생이에요. 점선은 신청 칸, 붉은 점선은 QR 시간이 지났는데 도장이 없는 칸, '추가'는 신청하지 않은 교시에 와서 받은 도장이에요. 선생님은 언제 어디서든 칸을 눌러 찍고, 도장을 다시 누르면 무를 수 있어요. 열심히 하는 학생에게는 아래 '칭찬 도장'을 한 주 1개까지 줄 수 있어요.";
 }
 function paintCell(h,d,no){
   var V=App.view,day=dayNow();
@@ -2065,6 +2117,22 @@ function paintRosList(){
     return '<div class="rrow"><div class="rinfo"><b class="tn">'+esc(x.n)+'</b> <small class="ts" style="display:inline">'+esc(x.c)+' · '+esc(x.h)+'</small><small class="rp">'+esc(x.p.join(", "))+'</small></div>'+
       '<div class="rbtn"><button class="btn ghost sm" data-a="ros-pick" data-h="'+esc(x.h)+'">고치기</button><button class="btn ghost sm" data-a="ros-clear" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'">삭제</button></div></div>';
   }).join(""):'<div class="empty">아직 신청한 학생이 없어요.</div>';
+}
+/* 칭찬 도장 */
+function praisedNow(h){return (App.view.praise||[]).filter(function(x){return x.h===h;}).length;}
+function paintPraise(){
+  var i=el("q6"),o=el("q6-out"),L=el("praise-list");if(!o||!L)return;
+  var q=i?i.value.replace(/\s/g,""):"",V=App.view;
+  if(q){var st=V.roster.filter(function(x){return x.h.indexOf(q)>=0||x.n.indexOf(q)>=0;}).slice(0,6);
+    o.innerHTML=st.length?st.map(function(x){var done=praisedNow(x.h)>=(V.praiseLim||1);
+      return '<div class="rrow"><div class="rinfo"><b class="tn">'+esc(x.n)+'</b> <small class="ts" style="display:inline">'+esc(x.c)+' · '+esc(x.h)+'</small>'+
+        (done?'<small class="rp">이번 주 칭찬 도장을 이미 받았어요</small>':'<input id="pr-'+esc(x.h)+'" placeholder="칭찬 이유 한 줄(예: 3교시까지 집중)" aria-label="칭찬 이유" maxlength="60" style="margin-top:6px;width:100%">')+'</div>'+
+        (done?'':'<div class="rbtn"><button class="btn gold sm" data-a="praise-give" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'">칭찬 +1</button></div>')+'</div>';}).join(""):'<div class="empty">찾는 학생이 없어요.</div>';}
+  else o.innerHTML="";
+  var P=(V.praise||[]).slice().sort(function(a,b){return a.d<b.d?1:-1;});
+  L.innerHTML=P.length?P.map(function(x){var can=V.me.grade==="관리자"||x.t===V.me.name||!!V.me.cls;
+    return '<div class="rrow"><div class="rinfo"><b class="tn">'+esc(x.n)+'</b> <small class="ts" style="display:inline">'+esc(x.c)+' · '+(x.d?md(x.d):"오늘")+' · '+esc(x.t)+' 선생님</small><small class="rp">'+esc(x.why)+'</small></div>'+
+      (can?'<div class="rbtn"><button class="btn ghost sm" data-a="praise-undo" data-id="'+esc(x.id)+'" data-n="'+esc(x.n)+'">무르기</button></div>':'')+'</div>';}).join(""):'<div class="empty">이번 주에 준 칭찬 도장이 없어요.</div>';
 }
 function paintRos(){
   var i=el("q5"),o=el("q5-out");if(!i||!o)return;
@@ -2348,6 +2416,20 @@ if(a==="qr-big"){var b=el("qrbox");b.classList.toggle("big");t.textContent=b.cla
     t.disabled=true;
     return tcall("giftUndo",{id:d.id}).then(function(){toast("배부 기록을 물렀어요.");paintTab();}).catch(function(e){toast(e.message);t.disabled=false;});
   }
+  if(a==="praise-give"){
+    var why=((el("pr-"+d.h)||{}).value||"").trim();if(why.length<2){toast("칭찬 이유를 한 줄 적어 주세요.");return;}
+    t.disabled=true;
+    return tcall("praiseGive",{hakbun:d.h,reason:why}).then(function(r){
+      var x=App.view.roster.filter(function(y){return y.h===d.h;})[0]||{};
+      (App.view.praise=App.view.praise||[]).push({id:r.id,h:d.h,n:d.n,c:x.c||"",t:App.view.me.name,why:why,d:((App.view.days||[]).filter(function(q){return q.today;})[0]||{}).d||""});
+      toast(d.n+" 학생에게 칭찬 도장을 줬어요.");paintPraise();
+    }).catch(function(e){toast(e.message);t.disabled=false;});
+  }
+  if(a==="praise-undo"){
+    if(!window.confirm(d.n+" 학생의 칭찬 도장을 무를까요?"))return;
+    t.disabled=true;
+    return tcall("praiseUndo",{id:d.id}).then(function(){App.view.praise=(App.view.praise||[]).filter(function(x){return x.id!==d.id;});toast("칭찬 도장을 물렀어요.");paintPraise();}).catch(function(e){toast(e.message);t.disabled=false;});
+  }
   if(a==="ros-clear"){
     if(!window.confirm(d.n+" 학생 신청을 모두 지울까요? 학생과 도장 기록은 남아요."))return;
     t.disabled=true;
@@ -2414,6 +2496,7 @@ document.addEventListener("input",function(ev){
   if(t.id==="q"){App.q=t.value;paintSheet();}
   if(t.id==="q4")paintDev();
   if(t.id==="q5")paintRos();
+  if(t.id==="q6")paintPraise();
   if(t.id==="q2"){App.q2=t.value.replace(/\s/g,"");var pos=t.selectionStart;paintGift();var n=el("q2");if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(e){}}}
   if(t.id==="q3"){App.q3=t.value;var P=App.data.people,q=t.value.replace(/\s/g,"");el("q3-out").innerHTML=peopleStudents(q?P.students.filter(function(x){return x.h.indexOf(q)>=0||x.n.indexOf(q)>=0;}).slice(0,20):[],q);}
 });
