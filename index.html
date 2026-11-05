@@ -900,7 +900,7 @@ function make(db,env){
       if(typeof p.lat!=="number"||typeof p.lng!=="number"||!isFinite(p.lat)||!isFinite(p.lng))fail("GEO:위치를 확인하지 못했어요. 위치를 허용한 뒤 다시 시도해 주세요.");
       var acc=typeof p.acc==="number"&&p.acc>0?Math.min(p.acc,100):0;
       var far=distanceM(spot.lat,spot.lng,p.lat,p.lng);
-      if(far-acc>spot.radius){logAway(a,P,p,far);fail("GEO:학교 근처에서만 도장을 찍을 수 있어요. 지금 위치는 선생님께 기록으로 남아요.");}
+      if(far-acc>spot.radius){logAway(a,P,p,far);fail("GEO:도장은 학교에서만 찍을 수 있어요. 학교를 벗어나면 찍히지 않고, 지금 위치는 선생님께 기록으로 남아요.");}
       geo="확인";
     }
     var dev=env.hmac("dev|"+S(p.device)).slice(0,12),mineDev=S(a.row["기기"]),registered=false;
@@ -1479,9 +1479,9 @@ function rLogin(err){
       '<p class="hint" style="margin-top:10px">학년별 코드는 담당 선생님께 받아 주세요.</p>';
   }
   var back=L.step==="id"?"":'<button type="button" class="linkbtn" data-a="login-back" style="display:block;margin:6px auto 0">처음으로</button>';
-  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">도장은 도장 찍는 시간에만 찍을 수 있어요. 시간에 맞춰 꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍어야 찍혀요.</div>';
+  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">도장은 학교에서, 도장 찍는 시간에만 찍을 수 있어요. 학교를 벗어나면 찍히지 않아요. 시간에 맞춰 꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍어야 찍혀요.</div>';
   var seg=L.step==="id"&&!App.pass?'<div class="seg"><button type="button" data-a="login-who" data-v="student" aria-pressed="'+!isT+'">학생</button><button type="button" data-a="login-who" data-v="teacher" aria-pressed="'+isT+'">선생님</button></div>':"";
-  var hi=L.step==="id"&&!isT?woong("hi",'<b>안녕! 나는 웅이야</b>'+(App.pass&&App.scan?"로그인하면 "+App.scan.period+"교시 도장이 찍혀.":"도장은 도장 찍는 시간에만 찍을 수 있어. 시간에 맞춰 QR을 찍어 줘.")):note;
+  var hi=L.step==="id"&&!isT?woong("hi",'<b>안녕! 나는 웅이야</b>'+(App.pass&&App.scan?"로그인하면 "+App.scan.period+"교시 도장이 찍혀.":"도장은 학교에서, 도장 찍는 시간에만 찍을 수 있어. 학교를 벗어나면 안 찍혀.")):note;
   el("app").innerHTML=topBar(null,true)+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="login">'+sayingHtml()+seg+hi+
     '<div class="card"><form id="f-login" autocomplete="off" novalidate>'+E+body+'</form>'+back+'</div>'+
     '<p class="rule">'+esc(ruleText())+'</p>'+timesHtml()+motto()+'</main>';
@@ -1657,7 +1657,7 @@ function rStudent(){
     '<main class="wrap stu">'+banner+sayingHtml()+'<div class="cols2"><div class="mainc">'+
     '<section class="card"><div class="head"><h2>이번 주 도장판</h2><span class="end">'+wkLabel(V.wk)+' · 도장 '+V.weekN+'개</span></div>'+
     '<table class="board">'+head+'<tbody>'+rows+'</tbody></table>'+
-    '<p class="legend">점선 칸은 신청한 교시예요. 신청하지 않은 교시에 와도 QR을 찍으면 도장을 받아요. 도장은 학교 근처에서, 등록한 내 폰(1대)으로만 찍혀요. 안 찍히면 감독 선생님께 말해요.</p>'+timesHtml(q.open?q.period:0)+'</section></div><div class="side">'+
+    '<p class="legend">점선 칸은 신청한 교시예요. 신청하지 않은 교시에 와도 QR을 찍으면 도장을 받아요. 도장은 학교에서, 등록한 내 폰(1대)으로만 찍혀요. 학교를 벗어나면 찍히지 않아요. 안 찍히면 감독 선생님께 말해요.</p>'+timesHtml(q.open?q.period:0)+'</section></div><div class="side">'+
     '<section class="card"><div class="stars"><span class="row" style="gap:3px;flex-wrap:wrap">'+stars+'</span><span class="big">이번 주 별 '+T.left+'개</span></div>'+
     '<div class="track" aria-hidden="true">'+track+'</div>'+
     '<p class="hint">다음 별까지 도장 <b>'+T.toNext+'개</b> · 지금까지 모은 도장 '+T.stamps+'개</p>'+
@@ -1911,7 +1911,7 @@ function paintQr(){
   if(qrYears.indexOf(App.qrG)<0||(!App.qrPicked&&V.me.year))App.qrG=V.me.year||qrYears[0];
   el("pane").innerHTML='<div class="chips">'+qrYears.map(function(g){return '<button class="chip" data-a="qr-g" data-v="'+g+'" aria-pressed="'+(App.qrG===g)+'">'+g+'학년 QR</button>';}).join("")+'</div>'+
     '<div class="qrbox" id="qrbox"><div class="qrclosed">불러오는 중이에요…</div></div>'+
-    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 '+room(App.qrG)+'에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에만, 등록한 내 폰으로, 학교 안에서만 찍혀요.</p>'+timesHtml()+pinBox()+footer();
+    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 '+room(App.qrG)+'에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에, 등록한 내 폰으로, 학교에서만 찍혀요. 학교를 벗어나면 찍히지 않아요.</p>'+timesHtml()+pinBox()+footer();
   loadQrLib(function(ok){App.qrLib=ok;qrTick();});
 }
 function qrTick(){
@@ -1942,7 +1942,7 @@ function drawQr(r){
     return;
   }
   var t=r.off?"오늘은 쉬는 날이에요("+r.off+")":!r.run?"도장은 월~목에 찍어요":r.next?"지금은 도장 찍는 시간이 아니에요":"오늘 도장 시간은 끝났어요";
-  var s=r.next&&r.run?"다음 도장 시간: "+r.next.no+"교시 "+r.next.open+"~"+r.next.close:"도장은 도장 찍는 시간에만 찍혀요.";
+  var s=r.next&&r.run?"다음 도장 시간: "+r.next.no+"교시 "+r.next.open+"~"+r.next.close:"도장은 학교에서, 도장 찍는 시간에만 찍혀요.";
   b.innerHTML='<h2>'+esc(r.g)+'학년 QR · '+room(String(r.g))+'</h2><p class="sub">'+esc(t)+' · '+esc(s)+'</p>'+code+bigBtn;
 }
 
