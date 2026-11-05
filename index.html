@@ -174,6 +174,36 @@ details.hist summary{cursor:pointer;font-family:var(--title);font-size:18px;min-
 .dots{display:flex;gap:4px;flex:none}
 .dots span{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);font-size:12px;line-height:24px;text-align:center;color:var(--muted)}
 .dots span.on{background:var(--seal);border-color:var(--seal);color:#fff}
+/* 학년 색 = 체육복 색(1학년 빨강, 2학년 노랑). 성벽 돌과 달력 칸을 이 색으로 채운다 */
+.stu{--b1:#F4B9B1;--b2:#E57868;--b3:#C9372C;--b4:#9C1F16;--bedge:#6E140E;--bempty:#DED5C3}
+.stu.g2{--b1:#FCE9A6;--b2:#F8D55A;--b3:#F2B705;--b4:#D69A00;--bedge:#8A6200}
+.gcolor{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--b4);vertical-align:-1px;margin-right:4px;border:1px solid var(--bedge)}
+/* 웅천읍성 쌓기 */
+.castle .cbig{display:flex;align-items:baseline;gap:6px;margin:2px 0 6px}
+.castle .cbig b{font-family:var(--title);font-weight:400;font-size:34px;color:var(--night);line-height:1}
+.castle .cbig small{color:var(--muted);font-size:13px}
+.cbar{height:12px;border-radius:6px;background:var(--bempty);overflow:hidden}
+.cbar i{display:block;height:100%;background:var(--b3);border-radius:6px;transition:width .9s ease-out}
+.csteps{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.csteps span{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.csteps span.done{background:var(--night);border-color:var(--night);color:#fff}
+.csteps span.cur{background:var(--gold-soft);border-color:var(--gold-line);color:var(--gold);font-weight:700}
+.bricks{display:flex;flex-wrap:wrap-reverse;gap:3px;max-height:170px;overflow:hidden;margin-top:6px;padding:7px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.bricks i{width:calc((100% - 27px)/10);height:13px;border-radius:2px;background:var(--bempty)}
+.bricks i.on{background:var(--b3);box-shadow:inset 0 -3px 0 var(--b4)}
+.bricks i.on.new{background:var(--b4);box-shadow:0 0 0 2px var(--bedge)}
+.bricks i:nth-child(20n+1){margin-left:0}
+/* 학기 도장 달력 */
+.cal{display:grid;gap:3px;font-size:11px;color:var(--muted);align-items:center}
+.cal .ml{white-space:nowrap;font-size:10px;min-height:12px}
+.cal{max-width:460px}
+.cc{aspect-ratio:1;border-radius:4px;background:var(--bempty,#DED5C3)}
+.cc.f{background:transparent;border:1px dashed var(--line)}
+.cc.o{background:repeating-linear-gradient(45deg,var(--bempty,#DED5C3),var(--bempty,#DED5C3) 3px,#fff 3px,#fff 6px)}
+.cc.l1{background:var(--b1)}.cc.l2{background:var(--b2)}.cc.l3{background:var(--b3)}.cc.l4{background:var(--b4);box-shadow:inset 0 0 0 1px var(--bedge)}
+.cc.t{outline:2px solid var(--night);outline-offset:1px}
+.calkey{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.calkey .cc{width:12px;height:12px;aspect-ratio:auto;display:inline-block}
 
 /* 선생님: 고르기 */
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
@@ -851,13 +881,34 @@ function make(db,env){
   }
   /* 학생 화면용: 우리 학년 그 교시가 마감됐으면 도장 시간이 아닌 것으로 */
   function qrFor(a){var q=qrInfo();if(q.open&&closedRow(today(),q.period,yearOf(a.row))){q.open=false;q.ended=true;}return q;}
+  /* 웅천읍성 쌓기: 모은 도장(전체 기간) 수로 단계가 오른다 */
+  var STAGES=[[0,"터 닦기"],[10,"주춧돌"],[30,"성벽"],[60,"성가퀴"],[100,"견룡문"],[150,"웅천읍성"]];
+  function stageOf(n){
+    var cur=STAGES[0],next=null;
+    for(var i=0;i<STAGES.length;i++){if(n>=STAGES[i][0])cur=STAGES[i];else{next=STAGES[i];break;}}
+    return {n:n,cur:{at:cur[0],name:cur[1]},next:next?{at:next[0],name:next[1]}:null,list:STAGES.map(function(s){return {at:s[0],name:s[1]};})};
+  }
+  /* 학기 도장 달력: 도장판을 처음 쓴 주부터 이번 주(시험이 다가오면 시험 전 주)까지, 최대 20주 */
+  function calendarOf(daily){
+    var td=today(),wk=weekOf(td),first=wk;
+    live("도장").forEach(function(r){var w=weekOf(dayOf(r));if(w&&w<first)first=w;});
+    var end=wk,dd=ddayInfo();
+    if(dd){var ew=weekOf(addDays(dd.date,-1));if(ew>end)end=ew;}
+    var list=[];for(var w=first;w<=end;w=addDays(w,7))list.push(w);
+    if(list.length>20)list=list.slice(list.length-20);
+    var off=offDays();
+    return list.map(function(w){
+      return {wk:w,days:DOW.map(function(dw,i){var y=addDays(w,i);return {d:y,n:daily[y]||0,off:off[y]?1:0,future:y>td?1:0,today:y===td?1:0};})};
+    });
+  }
   /* ── 학생 화면: 월~목 × 교시 ── */
   function studentView(a){
-    var td=today(),wk=weekOf(td),off=offDays(),cells={},weeks={};
+    var td=today(),wk=weekOf(td),off=offDays(),cells={},weeks={},daily={};
     live("도장").forEach(function(r){
       if(S(r["학번"])!==a.id)return;
       var d=dayOf(r),p=Number(r["교시"]),i=dowIdx(d),n=Number(r["개수"])||0;
       if(i<0||i>=DAYS)return;
+      daily[d]=(daily[d]||0)+n;
       var w=weekOf(d);
       /* 도장 아래 이름: QR이면 학생 본인, 선생님이 찍었으면 그 선생님 */
       if(w===wk)cells[d+"|"+p]={m:S(r["방식"]),n:n,t:S(r["방식"])==="QR"?"":S(r["교사"])};
@@ -869,9 +920,9 @@ function make(db,env){
       return {d:y,dow:dw,today:y===td,future:y>td,off:off[y]||""};
     });
     var history=Object.keys(weeks).filter(function(w){return w!==wk;}).sort().reverse().map(function(w){return weeks[w];});
-    var cur=weeks[wk]||{n:0};
+    var cur=weeks[wk]||{n:0},T0=tallyAll()(a.id);
     return {kind:"student",me:{hakbun:a.id,name:a.name,cls:a.cls},qr:qrFor(a),today:td,wk:wk,days:days,plan:planOf(a.row),cells:cells,
-      weekN:cur.n,history:history,tally:tallyAll()(a.id)};
+      weekN:cur.n,history:history,tally:T0,stage:stageOf(T0.stamps),cal:calendarOf(daily),dayMax:schedule().reduce(function(s,x){return s+x.n;},0)};
   }
   /* QR로 들어온 학생: 그 교시 도장이 찍히고 자기 도장판이 열린다 */
   /* 학교 밖에서 도장을 찍으려 한 기록: 주소(찾을 수 있으면)·좌표·학교와의 거리·지도 링크. 한 학생은 그날 그 교시에 한 줄만 */
@@ -1018,10 +1069,10 @@ function make(db,env){
     var td=today();
     /* 사라진 별: 받지 않아 월요일 0시에 사라진 별(관리자·담임이 본다) */
     var lost=list.filter(function(x){return x.expired>0;}).map(function(x){return {h:x.h,n:x.n,c:x.c,expired:x.expired,got:x.got};}).sort(function(x,y){return clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
-    return {canPay:a.grade===ADMIN,payCls:a.grade===ADMIN?"":S(a.cls),lost:lost,lostN:lost.reduce(function(s,x){return s+x.expired;},0),payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
+    return {canPay:a.grade===ADMIN||!!S(a.cls),lost:lost,lostN:lost.reduce(function(s,x){return s+x.expired;},0),payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
   }
-  /* 상품권 배부 기록: 관리자는 누구든, 담임 선생님은 자기 반 학생만(학생은 담임 선생님께 받으러 간다) */
-  function payer(a,cls){staff(a);if(a.grade===ADMIN)return;if(!S(a.cls)||S(cls)!==S(a.cls))fail("관리자와 그 반 담임 선생님만 배부를 기록할 수 있어요.");}
+  /* 상품권 배부 기록: 관리자는 누구든, 담임 선생님은 담임 학년 학생 모두(2026-11-05 회장님: 담임은 학년 전체 권한) */
+  function payer(a,cls){staff(a);if(a.grade===ADMIN)return;if(!S(a.cls)||!inScope(a,cls))fail("관리자와 그 학년 담임 선생님만 배부를 기록할 수 있어요.");}
   function giftPay(a,p){
     staff(a);
     var hb=S(p.hakbun),s=rowOf("명단","학번",hb);if(!s)fail("명단에 없는 학번입니다.");
@@ -1309,7 +1360,7 @@ var DemoServer=(function(){
   }
   return {
     api:function(n,p){try{return JSON.parse(JSON.stringify(api(n,p)));}catch(e){return {error:String(e.message)};}},
-    accounts:[["view","학생: 도장 시간이 아닐 때"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["view2","2학년 학생: 평소에 구경하기"],["stu2","2학년 학생: QR 찍기"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
+    accounts:[["view","학생: 도장 시간이 아닐 때"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["view2","2학년 학생: 도장 시간이 아닐 때"],["stu2","2학년 학생: QR 찍기"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
     clocks:[["18:20","18:20 1교시 도장 시간"],["19:20","19:20 2교시 도장 시간"],["20:30","20:30 3교시 도장 시간"],["18:00","18:00 도장 시간 아님"]],
     fresh:{hakbun:fresh[0],name:fresh[1]},
     enter:enter,setClock:setClock,
@@ -1629,6 +1680,8 @@ function rStudent(){
     banner+='<div class="woong done" role="status"><div class="bear">'+bearSVG(N.already?"hi":"yay")+'</div><div class="bubble"><b>'+(N.already?N.period+"교시 도장은 이미 받았어요":N.period+"교시 도장 "+N.n+"개를 받았어요!")+'</b>'+
       (N.extra?"신청하지 않은 교시예요. 추가 참여로 기록했어요.":"수고했어요.")+
       (N.registered?" 이 폰이 내 폰으로 등록됐어요. 앞으로 이 폰의 같은 앱으로 찍어 주세요.":"")+'</div></div>';
+    /* 이번 도장으로 성 쌓기 단계가 올랐으면 함께 축하 */
+    if(!N.already&&V.stage&&V.stage.cur.at>0&&V.stage.n-N.n<V.stage.cur.at)banner+='<div class="woong done" role="status"><div class="bear">'+bearSVG("yay")+'</div><div class="bubble"><b>웅천읍성 \''+esc(V.stage.cur.name)+'\' 단계에 올랐어요!</b>도장 '+V.stage.cur.at+'개를 모았어요. 계속 쌓아 가요.</div></div>';
   }
   var head='<thead><tr><th class="lab"></th>'+V.days.map(function(d){return '<th class="'+(d.today?"today":"")+'">'+d.dow+'<small>'+(d.today?"오늘":md(d.d))+'</small></th>';}).join("")+'</tr></thead>';
   var rows=c.periods.map(function(p){
@@ -1649,20 +1702,51 @@ function rStudent(){
   var gift=T.can>0?'<div class="gift"><b>문화상품권 '+T.can+'매를 받을 수 있어요 ('+won(T.can*c.voucher)+')</b><span>'+esc(c.recv)+'</span></div>':"";
   var got=T.got>0?'<p class="hint" style="margin-top:8px">지금까지 받은 상품권 '+T.got+'매 ('+won(T.got*c.voucher)+')</p>':"";
   var dows=["월","화","수","목"];
-  var hist=V.history.length?
+  /* 학년 색: 체육복 색(1학년 빨강, 2학년 노랑) */
+  var gradeNo=String(V.me.hakbun||"").charAt(0)==="2"?"2":"1",gColor=gradeNo==="2"?"노랑":"빨강";
+  /* B: 웅천읍성 쌓기 — 도장 하나가 성벽 돌 하나 */
+  var SG=V.stage||{n:T.stamps,cur:{name:"",at:0},next:null,list:[]},castle="";
+  if(V.stage){
+    var lo=SG.cur.at,hi=SG.next?SG.next.at:SG.cur.at,pct=SG.next?Math.round((SG.n-lo)/(hi-lo)*100):100;
+    var cap=SG.next?SG.next.at:Math.max(SG.n,SG.cur.at),showN=Math.min(cap,200),fresh0=N&&!N.already?N.n:0,br="";
+    for(var b=0;b<showN;b++)br+='<i class="'+(b<SG.n?"on":"")+(b<SG.n&&b>=SG.n-fresh0?" new":"")+'"></i>';
+    castle='<section class="card castle"><div class="head"><h2>웅천읍성 쌓기</h2><span class="end">'+esc(SG.cur.name)+' 단계</span></div>'+
+      '<div class="cbig"><b>'+SG.n+'</b><small>개 모은 도장</small></div>'+
+      '<div class="cbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div>'+
+      '<p class="hint" style="margin-top:6px">'+(SG.next?"다음 단계 <b>"+esc(SG.next.name)+"</b>까지 도장 <b>"+(SG.next.at-SG.n)+"개</b>":"웅천읍성을 다 쌓았어요! 계속 쌓아 가요.")+'</p>'+
+      '<div class="csteps">'+SG.list.filter(function(s){return s.at>0;}).map(function(s){var cl=SG.n>=s.at?(s.at===SG.cur.at?"cur":"done"):"";return '<span class="'+cl+'">'+esc(s.name)+' '+s.at+'</span>';}).join("")+'</div>'+
+      '<div class="bricks" aria-label="성벽 돌 '+SG.n+'개">'+br+'</div>'+
+      '<p class="hint" style="margin-top:6px"><span class="gcolor"></span>돌은 우리 학년 체육복 색, <b>'+gradeNo+'학년 '+gColor+'</b>이에요. 도장 하나가 돌 하나, 우리 학년 성을 함께 쌓아요.</p></section>';
+  }
+  /* A: 학기 도장 달력 — 한 학기 동안 칸이 채워진다 */
+  var calH="";
+  if(V.cal&&V.cal.length){
+    var mx=V.dayMax||5,cols=V.cal.length,lastM="";
+    var top='<span></span>'+V.cal.map(function(w){var m=Number(w.wk.slice(5,7))+"월";var s=m!==lastM?m:"";lastM=m;return '<span class="ml">'+s+'</span>';}).join("");
+    var body=dows.map(function(dw,k){
+      return '<span>'+dw+'</span>'+V.cal.map(function(w){var x=w.days[k],lv=x.n?Math.max(1,Math.min(4,Math.ceil(x.n/mx*4))):0;
+        var cl="cc"+(x.n?" l"+lv:x.off?" o":x.future?" f":"")+(x.today?" t":"");
+        return '<span class="'+cl+'" title="'+md(x.d)+' '+dw+' · '+(x.off?"쉬는 날":"도장 "+x.n+"개")+'" aria-label="'+md(x.d)+' 도장 '+x.n+'개"></span>';}).join("");
+    }).join("");
+    var calN=0,calDays=0;V.cal.forEach(function(w){w.days.forEach(function(x){calN+=x.n;if(x.n)calDays++;});});
+    calH='<section class="card"><div class="head"><h2>학기 도장 달력</h2><span class="end">'+calDays+'일 · 도장 '+calN+'개</span></div>'+
+      '<div class="cal" style="grid-template-columns:18px repeat('+cols+',1fr)">'+top+body+'</div>'+
+      '<div class="calkey"><span class="gcolor"></span>'+gradeNo+'학년 체육복 '+gColor+' · 적음 <span class="cc l1"></span><span class="cc l2"></span><span class="cc l3"></span><span class="cc l4"></span> 많음 · <span class="cc f"></span> 앞으로 채울 칸 · <span class="cc o"></span> 쉬는 날</div></section>';
+  }
+  var hist=V.cal?"":V.history.length?
     '<section class="card"><details class="hist"><summary>지난 기록 '+V.history.length+'주</summary><div style="margin-top:6px">'+V.history.map(function(h){
       return '<div class="hrow"><span class="wk">'+wkLabel(h.wk)+'<small>도장 '+h.n+'개</small></span><span class="dots">'+h.days.map(function(x,k){return '<span class="'+(x?"on":"")+'" aria-label="'+dows[k]+'요일 '+x+'개">'+(x||dows[k])+'</span>';}).join("")+'</span></div>';
     }).join("")+'</div></details></section>':"";
   el("app").innerHTML=topBar('<div class="who"><b>'+esc(V.me.name)+'</b><span>'+esc(V.me.cls)+'반</span></div>',true)+heroHtml()+'<div class="wall" aria-hidden="true"></div>'+
-    '<main class="wrap stu">'+banner+sayingHtml()+'<div class="cols2"><div class="mainc">'+
+    '<main class="wrap stu g'+gradeNo+'">'+banner+sayingHtml()+'<div class="cols2"><div class="mainc">'+
     '<section class="card"><div class="head"><h2>이번 주 도장판</h2><span class="end">'+wkLabel(V.wk)+' · 도장 '+V.weekN+'개</span></div>'+
     '<table class="board">'+head+'<tbody>'+rows+'</tbody></table>'+
     '<p class="legend">점선 칸은 신청한 교시예요. 신청하지 않은 교시에 와도 QR을 찍으면 도장을 받아요. 도장은 학교에서, 등록한 내 폰(1대)으로만 찍혀요. 학교를 벗어나면 찍히지 않아요. 안 찍히면 감독 선생님께 말해요.</p>'+timesHtml(q.open?q.period:0)+'</section></div><div class="side">'+
-    '<section class="card"><div class="stars"><span class="row" style="gap:3px;flex-wrap:wrap">'+stars+'</span><span class="big">이번 주 별 '+T.left+'개</span></div>'+
+    castle+'<section class="card"><div class="stars"><span class="row" style="gap:3px;flex-wrap:wrap">'+stars+'</span><span class="big">이번 주 별 '+T.left+'개</span></div>'+
     '<div class="track" aria-hidden="true">'+track+'</div>'+
     '<p class="hint">다음 별까지 도장 <b>'+T.toNext+'개</b> · 지금까지 모은 도장 '+T.stamps+'개</p>'+
     '<p class="hint">별은 담임 선생님께 가서 문화상품권으로 받아요. 받지 않은 별은 월요일 0시에 사라지고 도장은 남아요.'+(T.expired?' 지금까지 사라진 별 '+T.expired+'개.':'')+'</p>'+gift+got+'</section>'+
-    hist+'<p class="rule">'+esc(ruleText())+'</p>'+pinBox()+'<div class="foot"><button class="linkbtn" data-a="logout-stu">로그아웃</button></div></div></div>'+motto()+'</main>';
+    calH+hist+'<p class="rule">'+esc(ruleText())+'</p>'+pinBox()+'<div class="foot"><button class="linkbtn" data-a="logout-stu">로그아웃</button></div></div></div>'+motto()+'</main>';
 }
 
 /* ── 선생님·관리자 ── */
@@ -1954,17 +2038,17 @@ function paintGift(){
     '<div class="stat"><b>'+G.people+'명</b><span>지금 받을 학생</span></div>'+
     '<div class="stat"><b>'+G.owedN+'매</b><span>나눠 줄 상품권<br>'+won(G.owedWon)+'</span></div>'+
     '<div class="stat"><b>'+G.paidN+'매</b><span>지금까지 준 상품권<br>'+won(G.paidWon)+'</span></div></div>'+
-    '<section class="card"><div class="head"><h2>상품권 배부</h2><span class="hint">학생이 담임 선생님께 받으러 와요'+(G.canPay?'':' · 우리 반('+esc(G.payCls)+') 학생만 기록할 수 있어요')+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
+    '<section class="card"><div class="head"><h2>상품권 배부</h2><span class="hint">학생이 담임 선생님께 받으러 와요'+(G.canPay?'':' · 배부 기록은 관리자와 담임 선생님이 해요')+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
     '<div class="row" style="margin-bottom:10px"><input type="search" id="q2" placeholder="이름이나 학번으로 찾기" value="'+esc(q)+'" style="flex:1;min-width:180px" aria-label="이름이나 학번으로 찾기">'+
     '<button class="chip" data-a="gift-all" aria-pressed="'+all+'">모두 보기</button></div>'+
     (list.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">모은 도장</th><th class="r">남은 별</th><th class="r">받음</th><th></th></tr></thead><tbody>'+list.map(function(x){
-      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0&&(G.canPay||x.c===G.payCls)?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
+      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0&&G.canPay?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">'+(q?"찾는 학생이 없어요.":"지금 받을 학생이 없어요.")+'</div>')+'</section>'+
     '<section class="card"><div class="head"><h2>사라진 별</h2><span class="hint">받지 않아 월요일 0시에 사라진 별 · 모두 '+(G.lostN||0)+'개</span></div>'+
     ((G.lost||[]).length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">사라진 별</th><th class="r">받은 상품권</th></tr></thead><tbody>'+G.lost.map(function(x){return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.expired+'</td><td class="r">'+x.got+'</td></tr>';}).join("")+'</tbody></table></div>':'<div class="empty">사라진 별이 없어요.</div>')+'</section>'+
     '<section class="card"><div class="head"><h2>최근 배부 기록</h2></div>'+
     (G.log.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">매수</th><th>처리</th><th></th></tr></thead><tbody>'+G.log.map(function(l){
-      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r">'+(G.canPay||l.c===G.payCls?'<button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button>':'')+'</td></tr>';
+      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r">'+(G.canPay?'<button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">아직 배부 기록이 없어요.</div>')+'</section>'+footer();
 }
 function giftCsv(){
