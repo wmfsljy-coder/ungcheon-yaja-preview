@@ -237,6 +237,25 @@ table.book .col{width:20%}
 body.btabs #pane{padding-bottom:96px}
 body.btabs #toast{bottom:84px}
 @media (min-width:1024px){.tabs.bottom .tabs-in{max-width:1120px}.tabs.bottom button{font-size:15.5px;min-height:60px}}
+/* 제목 띠 그림: 왼쪽은 제목, 오른쪽에 성문이 보이게 */
+.top.art{position:relative;min-height:150px;display:flex;align-items:stretch;padding:12px 14px 12px;
+  background-image:linear-gradient(90deg,rgba(21,42,32,.96) 0%,rgba(21,42,32,.86) 34%,rgba(21,42,32,.25) 62%,rgba(21,42,32,0) 85%),linear-gradient(0deg,rgba(21,42,32,.5),rgba(21,42,32,0) 40%),var(--art);
+  background-size:auto,auto,auto 300%;background-position:0 0,0 0,right -210px top -70px;background-repeat:no-repeat;background-color:var(--night)}
+.top.art .top-in{width:100%;align-items:flex-end}
+.top.art .who{align-self:flex-start;background:rgba(21,42,32,.55);border-radius:10px;padding:3px 8px}
+.top.art .mark b{text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.tdday{display:inline-block;white-space:nowrap;margin-top:6px;background:rgba(0,0,0,.35);border:1px solid var(--gold-line);border-radius:999px;padding:1px 10px;font-size:12px;color:#F7F1E3;line-height:1.5}
+.tdday b{display:inline!important;color:#FFE08A;font-family:var(--title);font-weight:400;font-size:15px!important;margin-right:2px;text-shadow:none!important}
+@media (min-width:768px){.top.art{min-height:180px;background-size:auto,auto,auto 280%;background-position:0 0,0 0,right -150px top -80px}}
+@media (min-width:1024px){.top.art{min-height:210px;background-image:linear-gradient(90deg,rgba(21,42,32,.97) 0%,rgba(21,42,32,.95) 30%,rgba(21,42,32,.45) 48%,rgba(21,42,32,.08) 70%,rgba(21,42,32,0) 90%),linear-gradient(0deg,rgba(21,42,32,.45),rgba(21,42,32,0) 40%),var(--art);background-size:auto,auto,auto 340%;background-position:0 0,0 0,right -40px top -170px}}
+/* 도장 받은 순간 그림 */
+.winpic{position:relative;margin:0 0 12px;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.16);background:#fff;animation:winIn .45s ease-out both}
+@keyframes winIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.winpic img{display:block;width:100%;aspect-ratio:860/640;object-fit:cover}
+.winpic figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;background:linear-gradient(0deg,rgba(21,42,32,.85),rgba(21,42,32,0));color:#fff;line-height:1.3}
+.winpic figcaption b{display:block;font-family:var(--title);font-weight:400;font-size:22px;color:#FFE08A}
+.winpic figcaption span{font-size:13px}
+@media (min-width:1024px){.winpic{max-width:640px;margin:0 auto 14px}}
 .daysum{background:#f3f6f1;border:1px solid #d9e3d5;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:13.5px;line-height:1.5}
 .cell:hover .dot{outline:1px solid var(--gold-line);outline-offset:2px}
 .cell .seals .seal{width:40px;height:40px}
@@ -1353,16 +1372,12 @@ function bearSVG(pose){
     '<ellipse cx="37" cy="59" rx="6" ry="3.6" fill="#F2A48A" opacity=".75"/><ellipse cx="83" cy="59" rx="6" ry="3.6" fill="#F2A48A" opacity=".75"/>'+front+'</svg>';
 }
 function woong(pose,html){return '<div class="woong"><div class="bear">'+bearSVG(pose)+'</div><div class="bubble">'+html+'</div></div>';}
-/* 그림은 화면 전체 뒤에 옅게 까는 배경(교시마다 낮·노을·밤). 디데이는 맨 위 띠 */
-function heroHtml(){
-  var c=App.conf||{},sc=HEROES[c.scene]?c.scene:"day",src=HEROES[sc]||HEROES.day,d=c.dday;
-  setBg(sc,src);
-  return d?'<div class="ddaybar" role="note"><b>D-'+d.n+'</b> '+esc(d.name)+'</div>':"";
-}
-function setBg(sc,src){
-  var b=document.getElementById("bgart");
-  if(!b){b=document.createElement("div");b.id="bgart";b.setAttribute("aria-hidden","true");document.body.insertBefore(b,document.body.firstChild);}
-  if(b.getAttribute("data-sc")!==sc){b.setAttribute("data-sc",sc);b.style.backgroundImage=src?'url("'+src+'")':"none";b.className=sc;}
+/* 그림: 맨 위 제목 띠 뒤에 교시별 그림(낮·노을·밤), 도장을 받은 순간에만 크게. 디데이는 제목 띠 안에 */
+function sceneSrc(){var c=App.conf||{},sc=HEROES[c.scene]?c.scene:"day";return HEROES[sc]||HEROES.day||"";}
+function heroHtml(){var b=document.getElementById("bgart");if(b)b.parentNode.removeChild(b);return "";}
+function winPic(N){
+  var src=sceneSrc();if(!src||!N||N.already)return "";
+  return '<figure class="winpic"><img src="'+src+'" alt="웅천읍성과 웅천고 그림"><figcaption><b>'+N.period+'교시 도장 '+N.n+'개!</b><span>오늘도 한 칸 채웠어요</span></figcaption></figure>';
 }
 function sayingHtml(){
   var s=App.conf&&App.conf.saying;if(!s||!s.t)return "";
@@ -1372,7 +1387,8 @@ function motto(){return '<p class="motto"><b>애교 · 협동 · 정직</b></p>'
 function topBar(right,noWall){
   var c=App.conf||{};
   document.body.classList.remove("btabs");
-  return '<header class="top"><div class="top-in"><img class="emblem" src="'+EMBLEM+'" alt="웅천고등학교 교표"><div class="mark"><small>'+esc(c.school||"")+' · 야간 자기주도학습'+(App.g?" · "+esc(App.g)+"학년":"")+'</small><b>'+esc(c.app||"")+'</b></div>'+(right||"")+'</div></header>'+(noWall?"":'<div class="wall" aria-hidden="true"></div>');
+  var src=sceneSrc(),d=c.dday;
+  return '<header class="top'+(src?' art '+esc(c.scene||"day"):'')+'"'+(src?' style="--art:url(\''+src+'\')"':'')+'><div class="top-in"><img class="emblem" src="'+EMBLEM+'" alt="웅천고등학교 교표"><div class="mark"><small>'+esc(c.school||"")+' · 야간 자기주도학습'+(App.g?" · "+esc(App.g)+"학년":"")+'</small><b>'+esc(c.app||"")+'</b>'+(d?'<span class="tdday"><b>D-'+d.n+'</b> '+esc(d.name)+'</span>':'')+'</div>'+(right||"")+'</div></header>'+(noWall?"":'<div class="wall" aria-hidden="true"></div>');
 }
 function rStop(title,msg,retry){
   App.view=null;
@@ -1561,6 +1577,7 @@ function rStudent(){
       woong("hi",'<b>지금은 구경만 할 수 있어요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
   }
   if(N){
+    banner+=winPic(N);
     banner+='<div class="woong done" role="status"><div class="bear">'+bearSVG(N.already?"hi":"yay")+'</div><div class="bubble"><b>'+(N.already?N.period+"교시 도장은 이미 받았어요":N.period+"교시 도장 "+N.n+"개를 받았어요!")+'</b>'+
       (N.extra?"신청하지 않은 교시예요. 추가 참여로 기록했어요.":"수고했어요.")+
       (N.registered?" 이 폰이 내 폰으로 등록됐어요. 앞으로 이 폰의 같은 앱으로 찍어 주세요.":"")+'</div></div>';
