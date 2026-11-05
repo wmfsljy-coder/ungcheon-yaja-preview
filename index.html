@@ -180,6 +180,10 @@ details.hist summary{cursor:pointer;font-family:var(--title);font-size:18px;min-
 .pcg .pch{font-size:12px;color:var(--muted);text-align:center}.pcg .pcd{font-size:14px;font-weight:700;text-align:center}
 .pcg button{min-height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;color:var(--ink);cursor:pointer}
 .pcg button[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#fff;font-weight:700}
+.rp{display:block;margin-top:3px;font-size:13px;color:var(--ink);line-height:1.5}
+.rrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}.rrow:first-child{border-top:0}
+.rinfo{flex:1;min-width:0}.rbtn{display:flex;flex-direction:column;gap:4px;flex:none}.rbtn .btn{min-width:64px}
+.tabs.many button{font-size:12.5px;letter-spacing:-.02em;white-space:nowrap;padding-left:2px;padding-right:2px}
 .rosc{border-top:1px solid var(--line);padding:10px 0}.rosc:first-child{border-top:0}
 /* 학년 색 = 체육복 색(1학년 빨강, 2학년 노랑). 성벽 돌과 달력 칸을 이 색으로 채운다 */
 .stu{--b1:#F4B9B1;--b2:#E57868;--b3:#C9372C;--b4:#9C1F16;--bedge:#6E140E;--bempty:#DED5C3}
@@ -467,6 +471,7 @@ var CONF0=[
   ["학교위도","35.1127309","학교 위치. 출처: OpenStreetMap, 웅천고등학교(창원시 진해구 성내동), 2026-11-05 조회"],
   ["학교경도","128.7491294","학교 위치. 출처는 위와 같습니다."],
   ["위치반경","200","학교에서 몇 미터 안이면 인정할지. 처음 200m로 해 보고 학교 안에서 막히는 학생이 많으면 늘립니다(위치기록 탭 참고)."],
+  ["참여표시작","2026-11-09","담임 시트 '요일별 신청·참여' 탭을 이 날부터 보여 줍니다(최신 날짜가 위로)."],
   ["1학년시트","1KxK39TIcV_M_OL6O09GZRwfz02vjhLP-DX8MitAszbU","1학년 담임 시트 주소의 ID. 앱이 이 시트에 '요일별 신청·참여'·'신청 관리' 탭을 쓰고, 신청 관리 탭에서 고친 신청을 명단에 반영합니다."],
   ["2학년시트","1_CoLKuuwVPJ0LhvPBzKRCaqpDdGB43wLoKn7btjDXbw","2학년 담임 시트 주소의 ID(1학년시트와 같은 일)."],
   ["백업보관","12","매주 토요일 새벽에 만드는 운영 시트 사본을 몇 개까지 남길지. 넘으면 오래된 것부터 휴지통으로 갑니다."],
@@ -1305,8 +1310,9 @@ function make(db,env){
   var PLAN_CODES=(function(){var a=[];DOW.forEach(function(d){[1,2,3].forEach(function(p){a.push(d+p);});});return a;})();
   function planStr(list){var set={};(list||[]).forEach(function(x){set[S(x)]=1;});return PLAN_CODES.filter(function(c){return set[c];}).join(",");}
   function gradePlanRows(g){
-    return stuRows().filter(function(r){return yearOf(r)===String(g)&&planOf(r).length;}).map(function(r){return {h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),plan:planStr(planOf(r))};})
-      .sort(function(x,y){return clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
+    /* 그 학년 학생 모두, 학번 순서로(신청 안 한 학생도 빈 체크로 나온다) */
+    return stuRows().filter(function(r){return yearOf(r)===String(g)&&S(r["학번"]);}).map(function(r){return {h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),plan:planStr(planOf(r))};})
+      .sort(function(x,y){return x.h<y.h?-1:x.h>y.h?1:0;});
   }
   function applyPlanTable(g,rows,snap,who){
     g=String(g);snap=snap||{};var out={changed:0,added:0,cleared:0,skipped:[],warn:""},seen={},stamp=stampOf(now());
@@ -1332,22 +1338,25 @@ function make(db,env){
     else gone.forEach(function(h){var r=rowOf("명단","학번",h);if(!r||yearOf(r)!==g||!planOf(r).length)return;var before=S(r["신청"]);db.set("명단","학번",h,{"신청":""});out.cleared++;log(r,before,"");});
     return out;
   }
-  /* 요일별 신청·참여: 이번 주와 지난주, 날마다·교시마다 신청한 학생과 도장 받은 학생 */
+  /* 요일별 신청·참여: 설정 '참여표시작'(기본 2026-11-09 월)부터 오늘까지, 최신 날짜가 위로. 하루 안에서는 1·2·3교시 순서.
+     오늘 아직 도장 시간이 오지 않은 교시는 참여를 '(아직)'으로 둔다 */
   function gradeDayRows(g){
-    g=String(g);var td=today(),wk=weekOf(td),off=offDays(),names={},plans={},came={};
+    g=String(g);var td=today(),off=offDays(),names={},plans={},came={},m=minuteOf(now()),sch=schedule();
+    var start=normDate(conf()["참여표시작"])||"2026-11-09";
     stuRows().forEach(function(r){if(yearOf(r)!==g)return;var h=S(r["학번"]);names[h]=S(r["이름"])+"("+S(r["반"])+")";planOf(r).forEach(function(c){(plans[c]=plans[c]||[]).push(h);});});
     live("도장").forEach(function(r){var h=S(r["학번"]);if(!names[h])return;var k=dayOf(r)+"|"+S(r["교시"]);(came[k]=came[k]||{})[h]=1;});
-    var out=[];
-    [addDays(wk,-7),wk].forEach(function(w){
-      DOW.forEach(function(dw,i){var d=addDays(w,i);
-        schedule().forEach(function(pp){
-          var code=dw+pp.no,pl=(plans[code]||[]).slice().sort(),cm=Object.keys(came[d+"|"+pp.no]||{}).sort(),fut=d>td||(d===td&&false);
-          var plSet={};pl.forEach(function(h){plSet[h]=1;});var cmSet=came[d+"|"+pp.no]||{};
-          out.push({wk:w===wk?"이번 주":"지난주",d:d,dow:dw,p:pp.no,off:off[d]||"",future:d>td,
-            plan:pl.map(function(h){return names[h];}),came:cm.map(function(h){return names[h];}),
-            miss:d>td?[]:pl.filter(function(h){return !cmSet[h];}).map(function(h){return names[h];}),
-            extra:cm.filter(function(h){return !plSet[h];}).map(function(h){return names[h];})});
-        });
+    var out=[],days=[];
+    for(var d=td,guard=0;d>=start&&guard<200;d=addDays(d,-1),guard++){if(dowIdx(d)>=0&&dowIdx(d)<DAYS)days.push(d);}
+    days.forEach(function(d){
+      var dw=DOW[dowIdx(d)],w=weekOf(d);
+      sch.forEach(function(pp){
+        var code=dw+pp.no,pl=(plans[code]||[]).slice().sort(),cmSet=came[d+"|"+pp.no]||{},cm=Object.keys(cmSet).sort(),plSet={};
+        pl.forEach(function(h){plSet[h]=1;});
+        var yet=d===td&&m<pp.open;
+        out.push({wk:Number(w.slice(5,7))+"/"+Number(w.slice(8,10))+" 주",d:d,dow:dw,p:pp.no,off:off[d]||"",future:yet,
+          plan:pl.map(function(h){return names[h];}),came:cm.map(function(h){return names[h];}),
+          miss:yet?[]:pl.filter(function(h){return !cmSet[h];}).map(function(h){return names[h];}),
+          extra:cm.filter(function(h){return !plSet[h];}).map(function(h){return names[h];})});
       });
     });
     return out;
@@ -1845,11 +1854,11 @@ function rStudent(){
 function rStaff(){
   var V=App.view,isA=V.me.grade==="관리자",tabs=[["stamp","도장 표"],["qr","QR 띄우기"]];
   /* 담임 선생님도 상품권(보기)·통계를 본다. 사람 관리는 관리자만 */
-  if(isA)tabs=tabs.concat([["gift","상품권"],["overview","통계"],["people","사람"]]);
-  else if(V.me.cls)tabs=tabs.concat([["gift","상품권"],["overview","통계"]]);
+  if(isA)tabs=tabs.concat([["gift","상품권"],["overview","통계"],["roster","신청 관리"],["people","사람"]]);
+  else if(V.me.cls)tabs=tabs.concat([["gift","상품권"],["overview","통계"],["roster","신청 관리"]]);
   if(tabs.map(function(t){return t[0];}).indexOf(App.tab)<0)App.tab="stamp";
   var label=isA?"관리자 · 1·2학년 전체":V.me.year?V.me.year+"학년 선생님"+(V.me.cls?" · "+V.me.cls+"반 담임":""):"담당 학년 없음";
-  var nav='<nav class="tabs bottom" aria-label="선생님 메뉴"><div class="tabs-in" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(App.tab===t[0])+'" data-a="tab" data-v="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div></nav>';
+  var nav='<nav class="tabs bottom'+(tabs.length>5?' many':'')+'" aria-label="선생님 메뉴"><div class="tabs-in" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(App.tab===t[0])+'" data-a="tab" data-v="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div></nav>';
   el("app").innerHTML=topBar('<div class="who"><b>'+esc(V.me.name)+'</b><span>'+esc(label)+'</span></div>',true)+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="wrap" id="pane"></main>'+nav;
   document.body.classList.add("btabs");
   paintTab();
@@ -1858,6 +1867,7 @@ function paintTab(){
   clearTimeout(App.qrT);
   if(App.tab==="stamp")return paintStamp();
   if(App.tab==="qr")return paintQr();
+  if(App.tab==="roster")return paintRosterTab();
   var pane=el("pane");pane.innerHTML='<div class="loading">불러오는 중이에요…</div>';
   var name={gift:"giftList",overview:"overview",people:"people"}[App.tab],tab=App.tab;
   tcall(name,{}).then(function(r){if(App.tab!==tab)return;App.data[tab]=r;({gift:paintGift,overview:paintOverview,people:paintPeople})[tab]();})
@@ -1926,11 +1936,7 @@ function paintStamp(){
     '<p class="hint" id="info"></p>'+
     '<details class="pin"><summary>학생 폰 등록 풀기</summary><div class="card" style="margin-top:8px"><p class="hint" style="margin-bottom:8px">학생이 폰이나 앱을 바꿔 도장이 안 찍힐 때 풀어 주세요. 다음에 찍는 폰이 새 내 폰이 돼요.</p>'+
     '<input type="search" id="q4" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q4-out" style="margin-top:8px"></div></div></details>'+
-    (V.canEdit?'<details class="pin" id="rost"><summary>학생 명단 고치기 (더하기 · 신청 · 빼기)</summary><div class="card" style="margin-top:8px">'+
-      '<p class="hint" style="margin-bottom:8px">관리자와 담임 선생님은 학년 전체 학생을 더하고, 신청 교시를 고치고, 명단에서 뺄 수 있어요. 뺀 학생의 도장·상품권 기록은 남고, 다시 더하면 되살아나요. 담임 시트 \'신청 관리\' 탭에서 고쳐도 같아요.</p>'+
-      '<h3 class="rh">새 학생 더하기</h3><div class="row" style="gap:6px;flex-wrap:wrap"><input id="ra-h" inputmode="numeric" maxlength="4" placeholder="학번(예: 1203)" aria-label="학번" style="flex:1;min-width:120px"><input id="ra-n" placeholder="이름" aria-label="이름" style="flex:1;min-width:120px"></div>'+
-      planChips("ra",[])+'<button class="btn" data-a="ros-add" style="width:100%">명단에 더하기</button>'+
-      '<h3 class="rh" style="margin-top:14px">있는 학생 고치기</h3><input type="search" id="q5" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q5-out" style="margin-top:8px"></div></div></details>':"")+
+
     pinBox()+footer();
   paintSheet();
 }
@@ -2003,6 +2009,26 @@ function planChips(g,sel){
   }).join("")+'</div>';
 }
 function pickedPlan(g){return Array.prototype.map.call(document.querySelectorAll('[data-a="pc"][data-g="'+g+'"][aria-pressed="true"]'),function(b){return b.dataset.c;});}
+/* 신청 탭(관리자·담임): 학생 더하기, 신청 고치기, 명단에서 빼기 */
+function paintRosterTab(){
+  var V=App.view;
+  el("pane").innerHTML='<section class="card"><div class="head"><h2>신청 추가</h2><span class="hint">담임 학년 전체 · 담임 시트 \'신청 관리\' 탭에서 고쳐도 같아요</span></div>'+
+    '<div class="row" style="gap:6px;flex-wrap:wrap"><input id="ra-h" inputmode="numeric" maxlength="4" placeholder="학번(예: 1203)" aria-label="학번" style="flex:1;min-width:120px"><input id="ra-n" placeholder="이름(명단에 있으면 비워도 돼요)" aria-label="이름" style="flex:1;min-width:160px"></div>'+
+    planChips("ra",[])+'<button class="btn" data-a="ros-add" style="width:100%">신청 추가</button>'+
+    '<p class="hint" style="margin-top:6px">명단에 있는 학생은 학번만 넣고 교시를 고르면 신청이 들어가요. 명단에 없는 새 학생은 이름도 적어 주세요.</p></section>'+
+    '<section class="card"><div class="head"><h2>학생 찾아 고치기</h2></div><input type="search" id="q5" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q5-out" style="margin-top:8px"></div></section>'+
+    '<section class="card"><div class="head"><h2>신청한 학생</h2><span class="end hint" id="ros-n"></span></div><p class="hint" style="margin-bottom:6px">[고치기]로 교시를 바꾸고, [삭제]로 그 학생 신청을 모두 지워요(학생과 도장 기록은 남아요).</p><div id="ros-list"></div></section>'+pinBox()+footer();
+  paintRosList();
+}
+function paintRosList(){
+  var o=el("ros-list");if(!o)return;
+  var st=App.view.roster.filter(function(x){return x.p&&x.p.length;}).sort(function(a,b){return a.h<b.h?-1:1;});
+  el("ros-n").textContent=st.length+"명";
+  o.innerHTML=st.length?st.map(function(x){
+    return '<div class="rrow"><div class="rinfo"><b class="tn">'+esc(x.n)+'</b> <small class="ts" style="display:inline">'+esc(x.c)+' · '+esc(x.h)+'</small><small class="rp">'+esc(x.p.join(", "))+'</small></div>'+
+      '<div class="rbtn"><button class="btn ghost sm" data-a="ros-pick" data-h="'+esc(x.h)+'">고치기</button><button class="btn ghost sm" data-a="ros-clear" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'">삭제</button></div></div>';
+  }).join(""):'<div class="empty">아직 신청한 학생이 없어요.</div>';
+}
 function paintRos(){
   var i=el("q5"),o=el("q5-out");if(!i||!o)return;
   var q=i.value.replace(/\s/g,"");if(!q){o.innerHTML="";return;}
@@ -2284,29 +2310,39 @@ if(a==="qr-big"){var b=el("qrbox");b.classList.toggle("big");t.textContent=b.cla
     t.disabled=true;
     return tcall("giftUndo",{id:d.id}).then(function(){toast("배부 기록을 물렀어요.");paintTab();}).catch(function(e){toast(e.message);t.disabled=false;});
   }
+  if(a==="ros-clear"){
+    if(!window.confirm(d.n+" 학생 신청을 모두 지울까요? 학생과 도장 기록은 남아요."))return;
+    t.disabled=true;
+    return tcall("rosterEdit",{op:"plan",hakbun:d.h,plan:[]}).then(function(){App.view.roster.forEach(function(x){if(x.h===d.h)x.p=[];});toast(d.n+" 학생 신청을 지웠어요.");paintRosList();paintRos();}).catch(function(e){toast(e.message);t.disabled=false;});
+  }
+  if(a==="ros-pick"){var qi=el("q5");if(qi){qi.value=d.h;paintRos();qi.scrollIntoView({block:"start",behavior:"smooth"});}return;}
   if(a==="pc"){t.setAttribute("aria-pressed",t.getAttribute("aria-pressed")==="true"?"false":"true");return;}
   if(a==="ros-add"){
     var rh=(el("ra-h").value||"").replace(/\D/g,""),rn=(el("ra-n").value||"").trim(),rp=pickedPlan("ra");
     if(!/^\d{4}$/.test(rh)){toast("학번 네 자리를 적어 주세요.");return;}
-    if(!rn){toast("이름을 적어 주세요.");return;}
+    var have=App.view.roster.filter(function(x){return x.h===rh;})[0];
+    if(have){if(!rp.length){toast("신청할 교시를 골라 주세요.");return;}t.disabled=true;
+      return tcall("rosterEdit",{op:"plan",hakbun:rh,plan:rp}).then(function(){have.p=rp;toast(have.n+" 학생 신청을 넣었어요.");el("ra-h").value="";el("ra-n").value="";
+        Array.prototype.forEach.call(document.querySelectorAll('[data-a="pc"][data-g="ra"]'),function(b){b.setAttribute("aria-pressed","false");});t.disabled=false;paintRosList();}).catch(function(e){toast(e.message);t.disabled=false;});}
+    if(!rn){toast("명단에 없는 학번이에요. 이름도 적어 주세요.");return;}
     t.disabled=true;
     return tcall("rosterEdit",{op:"add",hakbun:rh,name:rn,plan:rp}).then(function(r){
       App.view.roster.push({h:rh,n:rn,c:rh.charAt(0)+"-"+Number(rh.charAt(1)),p:rp,d:false,r:[]});
       toast(rn+" 학생을 "+(r&&r.revived?"되살렸어요.":"명단에 더했어요."));el("ra-h").value="";el("ra-n").value="";
-      Array.prototype.forEach.call(document.querySelectorAll('[data-a="pc"][data-g="ra"]'),function(b){b.setAttribute("aria-pressed","false");});t.disabled=false;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-a="pc"][data-g="ra"]'),function(b){b.setAttribute("aria-pressed","false");});t.disabled=false;paintRosList();
     }).catch(function(e){toast(e.message);t.disabled=false;});
   }
   if(a==="ros-save"){
     var sp=pickedPlan("r"+d.h);t.disabled=true;
     return tcall("rosterEdit",{op:"plan",hakbun:d.h,plan:sp}).then(function(){
-      App.view.roster.forEach(function(x){if(x.h===d.h)x.p=sp;});toast(d.n+" 학생 신청을 저장했어요.");t.disabled=false;paintSheet();
+      App.view.roster.forEach(function(x){if(x.h===d.h)x.p=sp;});toast(d.n+" 학생 신청을 저장했어요.");t.disabled=false;paintRosList();
     }).catch(function(e){toast(e.message);t.disabled=false;});
   }
   if(a==="ros-del"){
     if(!window.confirm(d.n+" 학생을 명단에서 뺄까요? 도장·상품권 기록은 남고, 다시 더하면 되살아나요."))return;
     t.disabled=true;
     return tcall("rosterEdit",{op:"del",hakbun:d.h}).then(function(){
-      App.view.roster=App.view.roster.filter(function(x){return x.h!==d.h;});toast(d.n+" 학생을 명단에서 뺐어요.");paintRos();paintSheet();
+      App.view.roster=App.view.roster.filter(function(x){return x.h!==d.h;});toast(d.n+" 학생을 명단에서 뺐어요.");paintRos();paintRosList();
     }).catch(function(e){toast(e.message);t.disabled=false;});
   }
   if(a==="dev-reset"){
