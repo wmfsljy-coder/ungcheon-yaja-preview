@@ -174,6 +174,13 @@ details.hist summary{cursor:pointer;font-family:var(--title);font-size:18px;min-
 .dots{display:flex;gap:4px;flex:none}
 .dots span{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);font-size:12px;line-height:24px;text-align:center;color:var(--muted)}
 .dots span.on{background:var(--seal);border-color:var(--seal);color:#fff}
+/* 명단 고치기 */
+.rh{font-family:var(--title);font-weight:400;font-size:17px;margin:4px 0 6px}
+.pcg{display:grid;grid-template-columns:26px repeat(3,1fr);gap:5px;margin:8px 0;align-items:center}
+.pcg .pch{font-size:12px;color:var(--muted);text-align:center}.pcg .pcd{font-size:14px;font-weight:700;text-align:center}
+.pcg button{min-height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;color:var(--ink);cursor:pointer}
+.pcg button[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#fff;font-weight:700}
+.rosc{border-top:1px solid var(--line);padding:10px 0}.rosc:first-child{border-top:0}
 /* 학년 색 = 체육복 색(1학년 빨강, 2학년 노랑). 성벽 돌과 달력 칸을 이 색으로 채운다 */
 .stu{--b1:#F4B9B1;--b2:#E57868;--b3:#C9372C;--b4:#9C1F16;--bedge:#6E140E;--bempty:#DED5C3}
 .stu.g2{--b1:#FCE9A6;--b2:#F8D55A;--b3:#F2B705;--b4:#D69A00;--bedge:#8A6200}
@@ -431,7 +438,7 @@ var Core=(function(){
 
 var HEAD={
   "설정":["항목","값","설명"],
-  "명단":["학번","이름","반","장소","신청","기기","동의","동의항목","핀","실패","잠금","최근접속"],
+  "명단":["학번","이름","반","장소","신청","기기","동의","동의항목","핀","실패","잠금","최근접속","삭제","삭제자","삭제시각"],
   "교사":["이름","등급","학년","반","핀","실패","잠금","등록일","최근접속","기기"],
   "도장":["id","날짜","요일","교시","개수","학번","이름","반","방식","교사","기기","위치","시각","취소","취소자","취소시각"],
   "지급":["id","시각","학번","이름","반","매수","별","금액","처리자","취소","취소자","취소시각"],
@@ -439,7 +446,8 @@ var HEAD={
   "위치기록":["시각","날짜","교시","학번","이름","반","주소","거리m","오차m","위도","경도","지도"],
   "문구":["문구","출처"],
   "링크":["구분","링크","설명"],
-  "마감":["id","날짜","교시","학년","교사","시각","취소","취소자","취소시각"]
+  "마감":["id","날짜","교시","학년","교사","시각","취소","취소자","취소시각"],
+  "신청기록":["시각","학번","이름","반","전","후","출처"]
 };
 /* 문구 탭이 비어 있을 때 쓰는 기본 문구(노력·인내·성실이 날마다 돌아가며 나온다). 출처가 분명한 고전·속담과 학교 문구만 둔다. [문구, 출처, 주제] */
 var SAYINGS=[["남이 한 번에 해내면 나는 백 번 하고, 남이 열 번에 해내면 나는 천 번 한다.","『중용』","노력"], ["수적천석: 떨어지는 물방울이 끝내 바위를 뚫는다.","고사성어","인내"], ["성실함은 하늘의 도리이고, 성실하려 애쓰는 것은 사람의 도리다.","『중용』","성실"], ["하늘의 운행은 굳세니, 군자는 스스로 힘써 쉬지 않는다.","『주역』","노력"], ["마부작침: 도끼를 갈아 바늘을 만든다.","고사성어","인내"], ["공든 탑이 무너지랴.","속담","성실"], ["우공이산: 꾸준히 힘쓰면 산도 옮길 수 있다.","고사성어, 『열자』","노력"], ["큰 그릇은 늦게 이루어진다.","대기만성, 『도덕경』","인내"], ["작은 일에도 정성을 다하면 그 정성이 겉으로 드러난다.","『중용』","성실"], ["천 리 길도 한 걸음부터 시작된다.","노자, 『도덕경』","노력"], ["칠전팔기: 일곱 번 넘어져도 여덟 번 일어난다.","고사성어","인내"], ["티끌 모아 태산.","속담","성실"], ["형설지공: 반딧불과 눈빛에 비춰 공부하던 그 정성으로.","고사성어","노력"], ["낙숫물이 댓돌을 뚫는다.","속담","인내"], ["우물을 파도 한 우물을 파라.","속담","성실"], ["뜻이 있는 곳에 길이 있다.","속담","노력"], ["빨리 가는 것보다 멈추지 않는 것이 먼저예요.","","인내"], ["재능은 빌릴 수 없어도 성실은 오늘부터 내 것이 돼요.","","성실"], ["주경야독: 낮에는 밭을 갈고 밤에는 글을 읽는다.","고사성어","노력"], ["힘든 날에 앉아 있던 한 시간이 가장 오래 남아요.","","인내"], ["수불석권: 손에서 책을 놓지 않는다.","고사성어","성실"], ["어제보다 한 쪽 더, 그것이면 충분해요.","","노력"], ["절차탁마: 깎고 다듬고 쪼고 갈아야 빛이 난다.","고사성어, 『시경』","인내"], ["도장 하나는 작아도, 쌓인 도장은 내 성실함의 기록이에요.","","성실"], ["오늘 앉아 있는 이 한 교시가 내일의 나를 만들어요.","","노력"], ["지금 참고 앉아 있는 시간이 시험지 앞에서 나를 지켜 줘요.","","인내"], ["매일 같은 시간, 같은 자리. 그게 실력이 돼요.","","성실"]];
@@ -459,6 +467,8 @@ var CONF0=[
   ["학교위도","35.1127309","학교 위치. 출처: OpenStreetMap, 웅천고등학교(창원시 진해구 성내동), 2026-11-05 조회"],
   ["학교경도","128.7491294","학교 위치. 출처는 위와 같습니다."],
   ["위치반경","200","학교에서 몇 미터 안이면 인정할지. 처음 200m로 해 보고 학교 안에서 막히는 학생이 많으면 늘립니다(위치기록 탭 참고)."],
+  ["1학년시트","1KxK39TIcV_M_OL6O09GZRwfz02vjhLP-DX8MitAszbU","1학년 담임 시트 주소의 ID. 앱이 이 시트에 '요일별 신청·참여'·'신청 관리' 탭을 쓰고, 신청 관리 탭에서 고친 신청을 명단에 반영합니다."],
+  ["2학년시트","1_CoLKuuwVPJ0LhvPBzKRCaqpDdGB43wLoKn7btjDXbw","2학년 담임 시트 주소의 ID(1학년시트와 같은 일)."],
   ["백업보관","12","매주 토요일 새벽에 만드는 운영 시트 사본을 몇 개까지 남길지. 넘으면 오래된 것부터 휴지통으로 갑니다."],
   ["마지막백업","","앱이 적습니다(마지막으로 사본을 만든 때)."],
   ["교사기기수","3","선생님 한 명이 등록해 쓸 수 있는 기기 수(휴대폰·PC·태블릿 무엇이든). 넘으면 관리자가 사람 탭에서 기기 등록을 풀어 줍니다."],
@@ -526,7 +536,10 @@ function make(db,env){
   function now(){return env.now();}
   function today(){return ymdOf(now());}
   function live(t){return db.rows(t).filter(function(r){return S(r["취소"])!=="Y";});}
-  function rowOf(t,k,v){var a=db.rows(t);for(var i=0;i<a.length;i++)if(S(a[i][k])===S(v))return a[i];return null;}
+  function rowOf(t,k,v){var a=t==="명단"?stuRows():db.rows(t);for(var i=0;i<a.length;i++)if(S(a[i][k])===S(v))return a[i];return null;}
+  /* 명단: '삭제' 표시한 학생은 빼고 본다(줄은 남겨 도장·상품권 기록을 지킨다) */
+  function stuRows(){return db.rows("명단").filter(function(r){return S(r["삭제"])!=="Y";});}
+  function rowAny(h){var a=db.rows("명단");for(var i=0;i<a.length;i++)if(S(a[i]["학번"])===S(h))return a[i];return null;}
 
   var CONF=null;
   var BLANK_OK={"시험일":1};
@@ -957,7 +970,7 @@ function make(db,env){
     var dev=env.hmac("dev|"+S(p.device)).slice(0,12),mineDev=S(a.row["기기"]),registered=false;
     if(mineDev&&mineDev!==dev)fail("등록한 내 폰에서만 찍을 수 있어요. 폰을 바꿨거나 앱을 바꿨다면 담임 선생님께 말씀해 주세요.");
     if(!mineDev){
-      var owner=db.rows("명단").filter(function(r){return S(r["기기"])===dev&&S(r["학번"])!==a.id;})[0];
+      var owner=stuRows().filter(function(r){return S(r["기기"])===dev&&S(r["학번"])!==a.id;})[0];
       if(owner)fail("이 폰은 다른 학생의 폰으로 등록되어 있어요. 내 폰으로 찍어 주세요.");
       db.set("명단","학번",a.id,{"기기":dev});registered=true;
     }
@@ -985,7 +998,7 @@ function make(db,env){
     var td=today(),thisWk=weekOf(td),wk=parseYmd(wkIn)?weekOf(S(wkIn)):thisWk;
     if(wk>thisWk)wk=thisWk;
     /* 장소: 꿈실·교실처럼 감독 단위. 두 곳에 다 나가는 학생은 '교실,꿈실'로 적혀 양쪽 목록에 나온다 */
-    var rooms={},mineSet={},roster=db.rows("명단").filter(function(r){return S(r["학번"])&&inScope(a,r["반"]);}).map(function(r){
+    var rooms={},mineSet={},roster=stuRows().filter(function(r){return S(r["학번"])&&inScope(a,r["반"]);}).map(function(r){
       mineSet[S(r["학번"])]=1;
       var rs=S(r["장소"]).split(/[,\s]+/).filter(String);
       rs.forEach(function(x){rooms[x]=(rooms[x]||0)+1;});
@@ -1008,7 +1021,7 @@ function make(db,env){
         past:schedule().map(function(p){return y<td||(y===td&&minuteOf(now())>=p.close);})};
     });
     return {kind:"staff",me:{name:a.name,grade:a.grade,year:a.grade===ADMIN?"":a.year,cls:a.cls,years:yearsOf(a)},today:td,wk:wk,thisWk:thisWk,canPrev:true,days:days,roster:roster,
-      rooms:Object.keys(rooms).sort().map(function(k){return {name:k,n:rooms[k]};}),stamps:stamps,away:away};
+      rooms:Object.keys(rooms).sort().map(function(k){return {name:k,n:rooms[k]};}),stamps:stamps,away:away,canEdit:a.grade===ADMIN||!!S(a.cls)};
   }
   function stamp(a,p){
     staff(a);
@@ -1055,7 +1068,7 @@ function make(db,env){
   function giftList(a){
     reader(a);
     var V=voucherWon(),T=tallyAll(),list=[],owedN=0,paidN=0,people=0;
-    db.rows("명단").forEach(function(r){
+    stuRows().forEach(function(r){
       var h=S(r["학번"]);if(!h||!inScope(a,r["반"]))return;
       var t=T(h);
       paidN+=t.got;
@@ -1096,7 +1109,7 @@ function make(db,env){
   function overview(a){
     reader(a);
     var td=today(),wk=weekOf(td),V=voucherWon(),T=tallyAll(),cls={},weeks={},total=0,joined=0,owedN=0,paidN=0,students=0,planned=0,grid={};
-    db.rows("명단").forEach(function(r){
+    stuRows().forEach(function(r){
       var h=S(r["학번"]);if(!h||!inScope(a,r["반"]))return;
       students++;
       var c=S(r["반"]),t=T(h),pl=planOf(r);
@@ -1131,7 +1144,7 @@ function make(db,env){
   function attendance(a,p){
     reader(a);
     var td=today(),thisWk=weekOf(td),wk=parseYmd(p.wk)?weekOf(S(p.wk)):thisWk;if(wk>thisWk)wk=thisWk;
-    var plan={};db.rows("명단").forEach(function(r){var h=S(r["학번"]);if(h)plan[h]=planOf(r);});
+    var plan={};stuRows().forEach(function(r){var h=S(r["학번"]);if(h)plan[h]=planOf(r);});
     var days=DOW.map(function(dw,i){var y=addDays(wk,i);return {d:y,dow:dw,today:y===td,future:y>td,off:offDays()[y]||"",periods:schedule().map(function(pp){return {no:pp.no,list:[]};})};});
     live("도장").forEach(function(r){
       var d=dayOf(r);if(!parseYmd(d)||weekOf(d)!==wk||!inScope(a,r["반"]))return;
@@ -1153,7 +1166,7 @@ function make(db,env){
       teachers:db.rows("교사").filter(function(r){return S(r["이름"]);}).map(function(r){
         return {name:S(r["이름"]),grade:S(r["등급"])||SUPERVISOR,year:S(r["학년"]),cls:S(r["반"]),joined:!!S(r["핀"]),last:S(r["최근접속"]).slice(0,16),devs:S(r["기기"]).split(",").filter(String).length,devMax:num("교사기기수",3)};
       }).sort(function(x,y){return clsSort(x.cls||"9-9",y.cls||"9-9")||(x.name<y.name?-1:1);}),
-      students:db.rows("명단").filter(function(r){return S(r["학번"]);}).map(function(r){
+      students:stuRows().filter(function(r){return S(r["학번"]);}).map(function(r){
         return {h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),joined:!!S(r["핀"])};
       })};
   }
@@ -1198,13 +1211,13 @@ function make(db,env){
       var hb=S(x[0]),nm=S(x[1]),c=S(x[2]),rm=S(x[3]),pl=S(x[4]);
       if(!/^\d{4}$/.test(hb)||!nm||!c)fail("명단 형식이 맞지 않습니다: "+hb);
       seen[hb]=1;
-      var r=rowOf("명단","학번",hb);
+      var r=rowAny(hb);
       if(!r){db.add("명단",{"학번":hb,"이름":nm,"반":c,"장소":rm,"신청":pl});added++;}
-      else if(S(r["이름"])!==nm||S(r["반"])!==c||S(r["장소"])!==rm||S(r["신청"])!==pl){db.set("명단","학번",hb,{"이름":nm,"반":c,"장소":rm,"신청":pl});updated++;}
+      else if(S(r["삭제"])==="Y"||S(r["이름"])!==nm||S(r["반"])!==c||S(r["장소"])!==rm||S(r["신청"])!==pl){db.set("명단","학번",hb,{"이름":nm,"반":c,"장소":rm,"신청":pl,"삭제":""});updated++;}
       else same++;
     });
-    var notInList=db.rows("명단").filter(function(r){return S(r["학번"])&&!seen[S(r["학번"])];}).length;
-    return {added:added,updated:updated,same:same,notInList:notInList,total:db.rows("명단").length};
+    var notInList=stuRows().filter(function(r){return S(r["학번"])&&!seen[S(r["학번"])];}).length;
+    return {added:added,updated:updated,same:same,notInList:notInList,total:stuRows().length};
   }
   /* 담임 명단: 이름·학년·반만 미리 올려 둔다. PIN은 선생님이 코드로 처음 들어올 때 정한다 */
   function importTeachers(list){
@@ -1246,6 +1259,7 @@ function make(db,env){
       case "stamp":return stamp(a,p);
       case "unstamp":return unstamp(a,p);
       case "deviceReset":return deviceReset(a,p);
+      case "rosterEdit":return rosterEdit(a,p);
       case "giftList":return giftList(a);
       case "giftPay":return giftPay(a,p);
       case "giftUndo":return giftUndo(a,p);
@@ -1260,7 +1274,85 @@ function make(db,env){
     }
     fail("알 수 없는 요청입니다.");
   }
-  return {api:api,maintain:maintain,importRoster:importRoster,importTeachers:importTeachers,counts:counts};
+  /* ── 앱에서 명단 고치기: 관리자와 담임 선생님(담임 학년 전체) ──
+     add: 새 학생(또는 뺐던 학생 되살리기), plan: 신청 교시 바꾸기, del: 명단에서 빼기('삭제' 표시, 도장·상품권 기록은 남음) */
+  function editor(a,cls){staff(a);if(a.grade===ADMIN)return;if(!S(a.cls)||!inScope(a,cls))fail("관리자와 그 학년 담임 선생님만 명단을 고칠 수 있어요.");}
+  function rosterLog(r,before,after,a){db.add("신청기록",{"시각":stampOf(now()),"학번":S(r["학번"]),"이름":S(r["이름"]),"반":S(r["반"]),"전":before,"후":after,"출처":"앱: "+a.name});}
+  function rosterEdit(a,p){
+    staff(a);
+    var op=S(p.op),h=S(p.hakbun).replace(/\D/g,"");
+    if(!/^\d{4}$/.test(h))fail("학번은 네 자리 숫자로 적어 주세요(예: 1203).");
+    var g=h.charAt(0);if(YEARS.indexOf(g)<0)fail("1학년이나 2학년 학번을 적어 주세요.");
+    var want=planStr(p.plan||[]);
+    if(op==="add"){
+      var nm=S(p.name).replace(/\s+/g,"");if(!/^[가-힣A-Za-z]{2,20}$/.test(nm))fail("이름을 적어 주세요.");
+      var c=S(p.cls)||(g+"-"+Number(h.charAt(1)));if(!new RegExp("^"+g+"-\\d{1,2}$").test(c))fail("반은 "+g+"-3처럼 적어 주세요.");
+      editor(a,c);
+      if(rowOf("명단","학번",h))fail("이미 명단에 있는 학번이에요. 찾아서 신청을 고쳐 주세요.");
+      var dead=rowAny(h);
+      if(dead){db.set("명단","학번",h,{"이름":nm,"반":c,"신청":want,"삭제":"","삭제자":"","삭제시각":""});rosterLog({"학번":h,"이름":nm,"반":c},"(명단에서 뺐던 학생)",want,a);return {ok:true,revived:true};}
+      db.add("명단",{"학번":h,"이름":nm,"반":c,"신청":want});rosterLog({"학번":h,"이름":nm,"반":c},"(새 학생)",want,a);return {ok:true,added:true};
+    }
+    var r=rowOf("명단","학번",h);if(!r)fail("명단에 없는 학번이에요.");
+    editor(a,r["반"]);
+    if(op==="plan"){var before=S(r["신청"]);if(planStr(planOf(r))===want)return {ok:true,same:true};db.set("명단","학번",h,{"신청":want});rosterLog(r,before,want,a);return {ok:true};}
+    if(op==="del"){var b2=S(r["신청"]);db.set("명단","학번",h,{"삭제":"Y","삭제자":a.name,"삭제시각":stampOf(now()),"신청":""});rosterLog(r,b2,"(명단에서 뺌)",a);return {ok:true};}
+    fail("알 수 없는 요청입니다.");
+  }
+  /* ── 담임 시트(학년별): 요일별 신청·참여, 신청 관리 ──
+     신청 관리 탭은 한 학생 한 줄, 월1~목3 체크. 앱이 마지막으로 써 둔 값(snap)과 다른 줄만 선생님이 고친 것으로 보고 명단에 반영한다.
+     snap 에 있던 학번의 줄이 사라지면 그 학생 신청을 지운다(한꺼번에 많이 사라지면 실수로 보고 지우지 않는다). */
+  var PLAN_CODES=(function(){var a=[];DOW.forEach(function(d){[1,2,3].forEach(function(p){a.push(d+p);});});return a;})();
+  function planStr(list){var set={};(list||[]).forEach(function(x){set[S(x)]=1;});return PLAN_CODES.filter(function(c){return set[c];}).join(",");}
+  function gradePlanRows(g){
+    return stuRows().filter(function(r){return yearOf(r)===String(g)&&planOf(r).length;}).map(function(r){return {h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),plan:planStr(planOf(r))};})
+      .sort(function(x,y){return clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
+  }
+  function applyPlanTable(g,rows,snap,who){
+    g=String(g);snap=snap||{};var out={changed:0,added:0,cleared:0,skipped:[],warn:""},seen={},stamp=stampOf(now());
+    function log(r,before,after){db.add("신청기록",{"시각":stamp,"학번":S(r["학번"]),"이름":S(r["이름"]),"반":S(r["반"]),"전":before,"후":after,"출처":who||"담임 시트"});}
+    rows.forEach(function(x){
+      var h=S(x.h).replace(/\D/g,"");if(!h)return;
+      if(!/^\d{4}$/.test(h)||h.charAt(0)!==g){out.skipped.push(h+": "+g+"학년 학번(네 자리)이 아니에요");return;}
+      seen[h]=1;
+      var want=planStr(x.plan),r=rowOf("명단","학번",h),dead=!r&&rowAny(h);
+      if(dead&&S(x.n)){db.set("명단","학번",h,{"이름":S(x.n),"반":S(x.c)||S(dead["반"]),"신청":want,"삭제":""});out.added++;log(dead,"(명단에서 뺐던 학생)",want);return;}
+      if(r&&yearOf(r)!==g){out.skipped.push(h+": 명단의 반이 "+g+"학년이 아니에요");return;}
+      if(Object.prototype.hasOwnProperty.call(snap,h)&&snap[h]===want)return; /* 선생님이 안 고친 줄 */
+      if(!r){
+        var nm=S(x.n);if(!nm){out.skipped.push(h+": 새 학생은 이름을 적어 주세요");return;}
+        var c=S(x.c)||(g+"-"+Number(h.charAt(1)));
+        db.add("명단",{"학번":h,"이름":nm,"반":c,"신청":want});out.added++;log({"학번":h,"이름":nm,"반":c},"(명단에 없음)",want);return;
+      }
+      if(planStr(planOf(r))===want)return;
+      var before=S(r["신청"]);db.set("명단","학번",h,{"신청":want});out.changed++;log(r,before,want);
+    });
+    var gone=Object.keys(snap).filter(function(h){return !seen[h]&&snap[h];});
+    if(gone.length>10&&gone.length>Object.keys(snap).length/2){out.warn="한꺼번에 "+gone.length+"명의 줄이 사라져 신청을 지우지 않았어요. 실수가 아니면 나눠서 지워 주세요.";}
+    else gone.forEach(function(h){var r=rowOf("명단","학번",h);if(!r||yearOf(r)!==g||!planOf(r).length)return;var before=S(r["신청"]);db.set("명단","학번",h,{"신청":""});out.cleared++;log(r,before,"");});
+    return out;
+  }
+  /* 요일별 신청·참여: 이번 주와 지난주, 날마다·교시마다 신청한 학생과 도장 받은 학생 */
+  function gradeDayRows(g){
+    g=String(g);var td=today(),wk=weekOf(td),off=offDays(),names={},plans={},came={};
+    stuRows().forEach(function(r){if(yearOf(r)!==g)return;var h=S(r["학번"]);names[h]=S(r["이름"])+"("+S(r["반"])+")";planOf(r).forEach(function(c){(plans[c]=plans[c]||[]).push(h);});});
+    live("도장").forEach(function(r){var h=S(r["학번"]);if(!names[h])return;var k=dayOf(r)+"|"+S(r["교시"]);(came[k]=came[k]||{})[h]=1;});
+    var out=[];
+    [addDays(wk,-7),wk].forEach(function(w){
+      DOW.forEach(function(dw,i){var d=addDays(w,i);
+        schedule().forEach(function(pp){
+          var code=dw+pp.no,pl=(plans[code]||[]).slice().sort(),cm=Object.keys(came[d+"|"+pp.no]||{}).sort(),fut=d>td||(d===td&&false);
+          var plSet={};pl.forEach(function(h){plSet[h]=1;});var cmSet=came[d+"|"+pp.no]||{};
+          out.push({wk:w===wk?"이번 주":"지난주",d:d,dow:dw,p:pp.no,off:off[d]||"",future:d>td,
+            plan:pl.map(function(h){return names[h];}),came:cm.map(function(h){return names[h];}),
+            miss:d>td?[]:pl.filter(function(h){return !cmSet[h];}).map(function(h){return names[h];}),
+            extra:cm.filter(function(h){return !plSet[h];}).map(function(h){return names[h];})});
+        });
+      });
+    });
+    return out;
+  }
+  return {api:api,maintain:maintain,importRoster:importRoster,importTeachers:importTeachers,counts:counts,gradePlanRows:gradePlanRows,applyPlanTable:applyPlanTable,gradeDayRows:gradeDayRows,planStr:planStr,PLAN_CODES:PLAN_CODES};
 }
 
 return {HEAD:HEAD,CONF0:CONF0,make:make,weekOf:weekOf,ymdOf:ymdOf,addDays:addDays};
@@ -1834,6 +1926,11 @@ function paintStamp(){
     '<p class="hint" id="info"></p>'+
     '<details class="pin"><summary>학생 폰 등록 풀기</summary><div class="card" style="margin-top:8px"><p class="hint" style="margin-bottom:8px">학생이 폰이나 앱을 바꿔 도장이 안 찍힐 때 풀어 주세요. 다음에 찍는 폰이 새 내 폰이 돼요.</p>'+
     '<input type="search" id="q4" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q4-out" style="margin-top:8px"></div></div></details>'+
+    (V.canEdit?'<details class="pin" id="rost"><summary>학생 명단 고치기 (더하기 · 신청 · 빼기)</summary><div class="card" style="margin-top:8px">'+
+      '<p class="hint" style="margin-bottom:8px">관리자와 담임 선생님은 학년 전체 학생을 더하고, 신청 교시를 고치고, 명단에서 뺄 수 있어요. 뺀 학생의 도장·상품권 기록은 남고, 다시 더하면 되살아나요. 담임 시트 \'신청 관리\' 탭에서 고쳐도 같아요.</p>'+
+      '<h3 class="rh">새 학생 더하기</h3><div class="row" style="gap:6px;flex-wrap:wrap"><input id="ra-h" inputmode="numeric" maxlength="4" placeholder="학번(예: 1203)" aria-label="학번" style="flex:1;min-width:120px"><input id="ra-n" placeholder="이름" aria-label="이름" style="flex:1;min-width:120px"></div>'+
+      planChips("ra",[])+'<button class="btn" data-a="ros-add" style="width:100%">명단에 더하기</button>'+
+      '<h3 class="rh" style="margin-top:14px">있는 학생 고치기</h3><input type="search" id="q5" placeholder="이름이나 학번으로 찾기" aria-label="이름이나 학번으로 찾기"><div id="q5-out" style="margin-top:8px"></div></div></details>':"")+
     pinBox()+footer();
   paintSheet();
 }
@@ -1897,6 +1994,23 @@ function paintCell(h,d,no){
     if(c&&x)c.innerHTML=cellHtml(x,day,no);
   }
   paintInfo();
+}
+/* 신청 교시 고르기: 월~목 × 1~3교시 큰 단추 */
+function planChips(g,sel){
+  var s={};(sel||[]).forEach(function(c){s[c]=1;});
+  return '<div class="pcg" role="group" aria-label="신청 교시"><span></span><span class="pch">1교시</span><span class="pch">2교시</span><span class="pch">3교시</span>'+["월","화","수","목"].map(function(d){
+    return '<span class="pcd">'+d+'</span>'+[1,2,3].map(function(p){var c=d+p;return '<button type="button" data-a="pc" data-g="'+esc(g)+'" data-c="'+c+'" aria-pressed="'+(!!s[c])+'">'+c+'</button>';}).join("");
+  }).join("")+'</div>';
+}
+function pickedPlan(g){return Array.prototype.map.call(document.querySelectorAll('[data-a="pc"][data-g="'+g+'"][aria-pressed="true"]'),function(b){return b.dataset.c;});}
+function paintRos(){
+  var i=el("q5"),o=el("q5-out");if(!i||!o)return;
+  var q=i.value.replace(/\s/g,"");if(!q){o.innerHTML="";return;}
+  var st=App.view.roster.filter(function(x){return x.h.indexOf(q)>=0||x.n.indexOf(q)>=0;}).slice(0,8);
+  o.innerHTML=st.length?st.map(function(x){
+    return '<div class="rosc"><div class="rost"><b class="tn">'+esc(x.n)+'</b> <small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></div>'+planChips("r"+x.h,x.p)+
+      '<div class="row" style="gap:6px"><button class="btn sm" data-a="ros-save" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" style="flex:1">신청 저장</button><button class="btn ghost sm" data-a="ros-del" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" style="flex:1">명단에서 빼기</button></div></div>';
+  }).join(""):'<div class="empty">찾는 학생이 없어요.</div>';
 }
 function paintDev(){
   var i=el("q4"),o=el("q4-out");if(!i||!o)return;
@@ -2170,6 +2284,31 @@ if(a==="qr-big"){var b=el("qrbox");b.classList.toggle("big");t.textContent=b.cla
     t.disabled=true;
     return tcall("giftUndo",{id:d.id}).then(function(){toast("배부 기록을 물렀어요.");paintTab();}).catch(function(e){toast(e.message);t.disabled=false;});
   }
+  if(a==="pc"){t.setAttribute("aria-pressed",t.getAttribute("aria-pressed")==="true"?"false":"true");return;}
+  if(a==="ros-add"){
+    var rh=(el("ra-h").value||"").replace(/\D/g,""),rn=(el("ra-n").value||"").trim(),rp=pickedPlan("ra");
+    if(!/^\d{4}$/.test(rh)){toast("학번 네 자리를 적어 주세요.");return;}
+    if(!rn){toast("이름을 적어 주세요.");return;}
+    t.disabled=true;
+    return tcall("rosterEdit",{op:"add",hakbun:rh,name:rn,plan:rp}).then(function(r){
+      App.view.roster.push({h:rh,n:rn,c:rh.charAt(0)+"-"+Number(rh.charAt(1)),p:rp,d:false,r:[]});
+      toast(rn+" 학생을 "+(r&&r.revived?"되살렸어요.":"명단에 더했어요."));el("ra-h").value="";el("ra-n").value="";
+      Array.prototype.forEach.call(document.querySelectorAll('[data-a="pc"][data-g="ra"]'),function(b){b.setAttribute("aria-pressed","false");});t.disabled=false;
+    }).catch(function(e){toast(e.message);t.disabled=false;});
+  }
+  if(a==="ros-save"){
+    var sp=pickedPlan("r"+d.h);t.disabled=true;
+    return tcall("rosterEdit",{op:"plan",hakbun:d.h,plan:sp}).then(function(){
+      App.view.roster.forEach(function(x){if(x.h===d.h)x.p=sp;});toast(d.n+" 학생 신청을 저장했어요.");t.disabled=false;paintSheet();
+    }).catch(function(e){toast(e.message);t.disabled=false;});
+  }
+  if(a==="ros-del"){
+    if(!window.confirm(d.n+" 학생을 명단에서 뺄까요? 도장·상품권 기록은 남고, 다시 더하면 되살아나요."))return;
+    t.disabled=true;
+    return tcall("rosterEdit",{op:"del",hakbun:d.h}).then(function(){
+      App.view.roster=App.view.roster.filter(function(x){return x.h!==d.h;});toast(d.n+" 학생을 명단에서 뺐어요.");paintRos();paintSheet();
+    }).catch(function(e){toast(e.message);t.disabled=false;});
+  }
   if(a==="dev-reset"){
     if(!window.confirm(d.n+" 학생의 폰 등록을 풀까요?"))return;
     t.disabled=true;
@@ -2200,6 +2339,7 @@ document.addEventListener("input",function(ev){
   var t=ev.target;
   if(t.id==="q"){App.q=t.value;paintSheet();}
   if(t.id==="q4")paintDev();
+  if(t.id==="q5")paintRos();
   if(t.id==="q2"){App.q2=t.value.replace(/\s/g,"");var pos=t.selectionStart;paintGift();var n=el("q2");if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(e){}}}
   if(t.id==="q3"){App.q3=t.value;var P=App.data.people,q=t.value.replace(/\s/g,"");el("q3-out").innerHTML=peopleStudents(q?P.students.filter(function(x){return x.h.indexOf(q)>=0||x.n.indexOf(q)>=0;}).slice(0,20):[],q);}
 });
