@@ -491,7 +491,7 @@ function clsSort(a,b){
 function make(db,env){
   function fail(m){throw new Error(m);}
   function denied(){fail("LOGIN:다시 로그인해 주세요.");}
-  function needQr(m){fail("QR:"+(m||"꿈실카페에 붙은 QR을 찍고 들어와 주세요."));}
+  function needQr(m){fail("QR:"+(m||"꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍고 들어와 주세요."));}
   function now(){return env.now();}
   function today(){return ymdOf(now());}
   function live(t){return db.rows(t).filter(function(r){return S(r["취소"])!=="Y";});}
@@ -607,7 +607,7 @@ function make(db,env){
   }
 
   /* ── QR ──
-     QR은 학년마다 하나로 고정이다(꿈실카페에 인쇄해 붙여 둔다). QR에는 학년만 담긴다: 앱주소?q=1, ?q=2.
+     QR은 학년마다 하나로 고정이다(1학년 꿈실카페1, 2학년 꿈실카페2에 인쇄해 붙여 둔다). QR에는 학년만 담긴다: 앱주소?q=1, ?q=2.
      대신 도장은 도장 시간에만, 등록한 내 폰으로만, 학교 근처에서만 찍힌다.
      찍으면 10분짜리 통행증(pass)을 메모리에만 내어 준다(주소에 남지 않음). 처음 온 학생이 PIN을 정하는 동안 도장 시간이 끝나도 되게 */
   function qrToken(g){return String(g);}
@@ -1473,7 +1473,7 @@ function rLogin(err){
       '<p class="hint" style="margin-top:10px">학년별 코드는 담당 선생님께 받아 주세요.</p>';
   }
   var back=L.step==="id"?"":'<button type="button" class="linkbtn" data-a="login-back" style="display:block;margin:6px auto 0">처음으로</button>';
-  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">평소에는 내 도장판을 구경할 수 있어요. 도장은 정해진 시간에 꿈실카페에 붙은 QR을 찍어야 찍혀요.</div>';
+  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">평소에는 내 도장판을 구경할 수 있어요. 도장은 정해진 시간에 꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍어야 찍혀요.</div>';
   var seg=L.step==="id"&&!App.pass?'<div class="seg"><button type="button" data-a="login-who" data-v="student" aria-pressed="'+!isT+'">학생</button><button type="button" data-a="login-who" data-v="teacher" aria-pressed="'+isT+'">선생님</button></div>':"";
   var hi=L.step==="id"&&!isT?woong("hi",'<b>안녕! 나는 웅이야</b>'+(App.pass&&App.scan?"로그인하면 "+App.scan.period+"교시 도장이 찍혀.":"평소에는 도장판을 구경하고, 정해진 시간에 QR을 찍으면 도장이 찍혀.")):note;
   el("app").innerHTML=topBar(null,true)+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="login">'+sayingHtml()+seg+hi+
@@ -1615,7 +1615,7 @@ function rStudent(){
   var banner=App.warn?'<div class="err" role="alert">'+esc(App.warn)+'</div>':"";App.warn="";
   var q=V.qr||{};
   if(!N){
-    banner+=q.open?'<div class="woong on"><div class="bear">'+bearSVG("hi")+'</div><div class="bubble"><b>지금은 '+q.period+'교시 도장 시간이에요</b>'+esc(q.close)+'까지 꿈실카페에 붙은 QR을 찍으면 도장이 찍혀요.</div></div>':
+    banner+=q.open?'<div class="woong on"><div class="bear">'+bearSVG("hi")+'</div><div class="bubble"><b>지금은 '+q.period+'교시 도장 시간이에요</b>'+esc(q.close)+'까지 '+room(String(App.view.me.hakbun||'').charAt(0))+'에 붙은 QR을 찍으면 도장이 찍혀요.</div></div>':
       q.ended?woong("hi",'<b>'+q.period+'교시 도장은 마감됐어요</b>감독 선생님이 이번 교시 도장을 마감했어요. 못 찍었으면 감독 선생님께 말씀해 주세요.'):woong("hi",'<b>지금은 구경만 할 수 있어요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
   }
   if(N){
@@ -1896,6 +1896,8 @@ function loadQrLib(cb){
     document.head.appendChild(s);
   })();
 }
+/* 학년별 자습 장소: 1학년 꿈실카페1, 2학년 꿈실카페2 */
+function room(g){return g==="1"||g==="2"?"꿈실카페"+g:"꿈실카페";}
 function paintQr(){
   var V=App.view;
   /* 학년 선생님은 자기 학년 QR만, 관리자는 두 학년 다 */
@@ -1903,7 +1905,7 @@ function paintQr(){
   if(qrYears.indexOf(App.qrG)<0||(!App.qrPicked&&V.me.year))App.qrG=V.me.year||qrYears[0];
   el("pane").innerHTML='<div class="chips">'+qrYears.map(function(g){return '<button class="chip" data-a="qr-g" data-v="'+g+'" aria-pressed="'+(App.qrG===g)+'">'+g+'학년 QR</button>';}).join("")+'</div>'+
     '<div class="qrbox" id="qrbox"><div class="qrclosed">불러오는 중이에요…</div></div>'+
-    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 꿈실카페에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에만, 등록한 내 폰으로, 학교 안에서만 찍히고 그 밖에는 구경만 돼요.</p>'+timesHtml()+pinBox()+footer();
+    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 '+room(App.qrG)+'에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에만, 등록한 내 폰으로, 학교 안에서만 찍히고 그 밖에는 구경만 돼요.</p>'+timesHtml()+pinBox()+footer();
   loadQrLib(function(ok){App.qrLib=ok;qrTick();});
 }
 function qrTick(){
@@ -1927,7 +1929,7 @@ function drawQr(r){
   var code=svg?'<div class="code" role="img" aria-label="QR 코드">'+svg+'</div>':'<div class="qrclosed"><b>QR 그림을 불러오지 못했어요</b>인터넷 연결을 확인해 주세요.</div>';
   var bigBtn='<button class="btn ghost sm" data-a="qr-big" style="margin-top:8px">'+(big?"작게 보기":"크게 보기")+'</button>';
   if(r.open){
-    b.innerHTML='<h2>'+esc(r.g)+'학년 '+r.period+'교시 도장 시간</h2><p class="sub">'+esc(pp.start)+'~'+esc(pp.end)+' 수업 · '+esc(r.close)+'까지 · 도장 '+r.n+'개</p>'+code+
+    b.innerHTML='<h2>'+esc(r.g)+'학년 '+r.period+'교시 도장 시간 · '+room(String(r.g))+'</h2><p class="sub">'+esc(pp.start)+'~'+esc(pp.end)+' 수업 · '+esc(r.close)+'까지 · 도장 '+r.n+'개</p>'+code+
       '<p class="count">지금까지 찍은 학생 '+r.count+'명</p>'+
       (r.closedBy?'<div class="closedby"><b>'+r.period+'교시 도장 마감됨</b> '+esc(r.closedBy.t)+' 선생님 · '+esc(r.closedBy.at)+' <button class="btn ghost sm" data-a="qr-reopen">마감 풀기</button></div>':'<button class="btn closebtn" data-a="qr-close">'+r.period+'교시 도장 마감</button>')+
       (r.names&&r.names.length?'<div class="names">'+r.names.map(function(x){return '<span>'+esc(x)+'</span>';}).join("")+'</div>':"")+bigBtn;
@@ -1935,7 +1937,7 @@ function drawQr(r){
   }
   var t=r.off?"오늘은 쉬는 날이에요("+r.off+")":!r.run?"도장은 월~목에 찍어요":r.next?"지금은 구경 시간이에요":"오늘 도장 시간은 끝났어요";
   var s=r.next&&r.run?"다음 도장 시간: "+r.next.no+"교시 "+r.next.open+"~"+r.next.close:"지금 찍으면 도장판 구경만 돼요.";
-  b.innerHTML='<h2>'+esc(r.g)+'학년 QR</h2><p class="sub">'+esc(t)+' · '+esc(s)+'</p>'+code+bigBtn;
+  b.innerHTML='<h2>'+esc(r.g)+'학년 QR · '+room(String(r.g))+'</h2><p class="sub">'+esc(t)+' · '+esc(s)+'</p>'+code+bigBtn;
 }
 
 /* 관리자: 상품권 */
