@@ -180,6 +180,8 @@ details.hist summary{cursor:pointer;font-family:var(--title);font-size:18px;min-
 .pcg .pch{font-size:12px;color:var(--muted);text-align:center}.pcg .pcd{font-size:14px;font-weight:700;text-align:center}
 .pcg button{min-height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;color:var(--ink);cursor:pointer}
 .pcg button[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#fff;font-weight:700}
+#queue-note{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:60;background:#1f3b2d;color:#fff;border-radius:14px;padding:10px 16px;max-width:92%;font-size:14px;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.25);text-align:center}
+#queue-note b{display:block;font-size:15px}
 .rp{display:block;margin-top:3px;font-size:13px;color:var(--ink);line-height:1.5}
 .rrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}.rrow:first-child{border-top:0}
 .rinfo{flex:1;min-width:0}.rbtn{display:flex;flex-direction:column;gap:4px;flex:none}.rbtn .btn{min-width:64px}
@@ -1516,16 +1518,27 @@ function deviceId(){
   return d;
 }
 
-/* 도장 찍기는 사람이 몰리면 서버가 잠깐 바쁠 수 있어, 두 번까지 저절로 다시 보낸다 */
+/* 사람이 몰릴 때(50명 이상) 대비: 다시 보내도 결과가 같은 요청은 답이 늦거나(25초) 바쁘다는 오류가 오면
+   1.5→3→5→8→12초 간격으로 여섯 번까지 다시 보낸다(1분 안팎). 기다리는 동안 '줄 서는 중' 안내를 띄운다 */
+var RETRIED_={},RETRY_OK=["boot","scan","checkin","qrNow","week"],RETRY_GAP=[1500,3000,5000,8000,12000,15000];
 function call(name,p,tries){
   tries=tries||0;
-  if(name==="checkin"&&tries<2){
-    return call0(name,p).catch(function(e){
-      if(e.kind||!/lock|잠금|too many|busy|연결이 끊겼/i.test(e.message))throw e;
-      return new Promise(function(r){setTimeout(r,700+Math.random()*1800);}).then(function(){return call(name,p,tries+1);});
-    });
-  }
-  return call0(name,p);
+  if(RETRY_OK.indexOf(name)<0)return call0(name,p);
+  var done=false;
+  var main=call0(name,p).then(function(r){done=true;return r;},function(e){done=true;throw e;});
+  var watch=new Promise(function(res,rej){setTimeout(function(){if(!done){var e=new Error("응답이 늦어요");e.slow=true;rej(e);}},25000);});
+  return Promise.race([main,watch]).catch(function(e){
+    var busy=e.slow||(!e.kind&&/lock|잠금|too many|busy|연결이 끊겼|simultaneous|invoked|서버에 연결/i.test(e.message));
+    if(!busy||tries>=RETRY_GAP.length)throw e;
+    queueNote(true,tries+1);if(name==="checkin"&&p&&p.pass)RETRIED_[p.pass]=1;
+    return new Promise(function(r){setTimeout(r,RETRY_GAP[tries]+Math.random()*1200);}).then(function(){return call(name,p,tries+1);});
+  }).then(function(r){queueNote(false);if(tries===0&&name==="checkin"&&r&&r.result&&r.result.already&&RETRIED_[p&&p.pass])r.result.already=false;return r;},function(e){queueNote(false);throw e;});
+}
+function queueNote(on,n){
+  var b=document.getElementById("queue-note");
+  if(!on){if(b)b.remove();return;}
+  if(!b){b=document.createElement("div");b.id="queue-note";b.setAttribute("role","status");document.body.appendChild(b);}
+  b.innerHTML='<b>학생이 많이 몰려 줄 서는 중이에요</b>그대로 기다려 주세요. 저절로 다시 보내요('+n+'번째).';
 }
 function call0(name,p){
   p=p||{};
