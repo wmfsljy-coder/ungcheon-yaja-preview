@@ -539,7 +539,8 @@ function make(db,env){
       ["관리자",u+"?t=1","관리자(담당 선생님)가 여는 주소. 1·2학년 전체"],
       ["1학년 학생",u+"?q=1","1학년 도장 QR과 같은 주소. 도장 시간에는 도장, 그 밖에는 내 도장판 보기"],
       ["2학년 학생",u+"?q=2","2학년 도장 QR과 같은 주소. 도장 시간에는 도장, 그 밖에는 내 도장판 보기"],
-      ["앱 기본 주소",u,"주소만. 학생·선생님을 고르는 첫 화면"]];
+      ["앱 기본 주소",u,"주소만. 학생·선생님을 고르는 첫 화면"],
+      ["미리보기(시연본)","https://wmfsljy-coder.github.io/ungcheon-yaja-preview/","가짜 이름으로 만든 시연 화면. 휴대폰에서도 열리고 저장되지 않는다"]];
   }
   function maintain(){
     var have={};db.rows("설정").forEach(function(r){have[S(r["항목"])]=1;});
@@ -1166,6 +1167,10 @@ var DemoServer=(function(){
   /* 시연 학생은 이미 등록한 폰이 있다고 치고 시작한다(처음 찍기는 다른 학생으로 볼 수 있다) */
   var tStu=api("login",{hakbun:who[0],name:who[1],pin:"246810",agree:true,agreeGeo:true,agreeDev:true,pass:api("scan",{q:qrOf("1")}).pass}).token;
   db.set("명단","학번",who[0],{"기기":hash("dev|demo-stu").slice(0,12)});
+  /* 2학년 시연 학생 */
+  var who2=planned.filter(function(r){return r[0].charAt(0)==="2";})[0]||rows.filter(function(r){return r[0].charAt(0)==="2";})[0];
+  var tStu2=api("login",{hakbun:who2[0],name:who2[1],pin:"246810",agree:true,agreeGeo:true,agreeDev:true,pass:api("scan",{q:qrOf("2")}).pass}).token;
+  db.set("명단","학번",who2[0],{"기기":hash("dev|demo-stu2").slice(0,12)});
 
   /* 지난 3주와 이번 주 지난 요일 도장 */
   var wk=Core.weekOf(anchor),cnt=[1,2,2];
@@ -1189,6 +1194,8 @@ var DemoServer=(function(){
     if(k==="other")return appEnter({stu:tStu,device:"demo-other",geo:school,q:qrOf("1")});
     if(k==="home")return appEnter({stu:tStu,device:"demo-stu",geo:{lat:35.2,lng:128.6,acc:20},q:qrOf("1")});
     if(k==="deny")return appEnter({stu:tStu,device:"demo-stu",geo:"deny",q:qrOf("1")});
+    if(k==="view2")return appEnter({stu:tStu2,device:"demo-stu2",geo:school});
+    if(k==="stu2")return appEnter({stu:tStu2,device:"demo-stu2",geo:school,q:qrOf("2")});
     if(k==="sup")return appEnter({tch:tSup});
     if(k==="sup2")return appEnter({tch:tSup2});
     if(k==="admin")return appEnter({tch:tAdmin});
@@ -1196,11 +1203,19 @@ var DemoServer=(function(){
   }
   return {
     api:function(n,p){try{return JSON.parse(JSON.stringify(api(n,p)));}catch(e){return {error:String(e.message)};}},
-    accounts:[["view","학생: 평소에 구경하기"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
+    accounts:[["view","학생: 평소에 구경하기"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["view2","2학년 학생: 평소에 구경하기"],["stu2","2학년 학생: QR 찍기"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
     clocks:[["18:20","18:20 1교시 도장 시간"],["19:20","19:20 2교시 도장 시간"],["20:30","20:30 3교시 도장 시간"],["18:00","18:00 구경 시간"]],
     fresh:{hakbun:fresh[0],name:fresh[1]},
     enter:enter,setClock:setClock,
-    start:function(){enter("view");}
+    /* 주소로 바로 열기: ?who=sup&clock=20:30 처럼 계정과 시각을 고른다 */
+    start:function(){
+      var q={};try{(location.search||"").replace(/^\?/,"").split("&").forEach(function(kv){var p=kv.split("=");if(p[0])q[decodeURIComponent(p[0])]=decodeURIComponent(p[1]||"");});}catch(e){}
+      var has=function(list,v){return list.some(function(a){return a[0]===v;});};
+      var w=has(DemoServer.accounts,q.who)?q.who:"view",ck=has(DemoServer.clocks,q.clock)?q.clock:"";
+      if(ck)setClock(ck);
+      setTimeout(function(){var s=document.getElementById("demo-who"),c=document.getElementById("demo-clock");if(s)s.value=w;if(c&&ck)c.value=ck;},0);
+      enter(w);
+    }
   };
 })();
 
