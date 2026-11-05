@@ -256,6 +256,9 @@ body.btabs #toast{bottom:84px}
 .winpic figcaption b{display:block;font-family:var(--title);font-weight:400;font-size:22px;color:#FFE08A}
 .winpic figcaption span{font-size:13px}
 @media (min-width:1024px){.winpic{max-width:640px;margin:0 auto 14px}}
+.closebtn{display:block;margin:8px auto 0;min-width:220px;min-height:52px;font-size:17px;background:#9a2a1e}
+.closedby{margin:8px auto 0;padding:8px 12px;border-radius:10px;background:#fdf0ee;color:#7a2416;line-height:1.6}
+.qrbox.big .closebtn{min-height:60px;font-size:20px}
 .daysum{background:#f3f6f1;border:1px solid #d9e3d5;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:13.5px;line-height:1.5}
 .cell:hover .dot{outline:1px solid var(--gold-line);outline-offset:2px}
 .cell .seals .seal{width:40px;height:40px}
@@ -404,7 +407,8 @@ var HEAD={
   "쉬는날":["날짜","메모"],
   "위치기록":["시각","날짜","교시","학번","이름","반","주소","거리m","오차m","위도","경도","지도"],
   "문구":["문구","출처"],
-  "링크":["구분","링크","설명"]
+  "링크":["구분","링크","설명"],
+  "마감":["id","날짜","교시","학년","교사","시각","취소","취소자","취소시각"]
 };
 /* 문구 탭이 비어 있을 때 쓰는 기본 문구. 출처가 분명한 고전·속담과 학교 안내 문구만 둔다 */
 var SAYINGS=[["천 리 길도 한 걸음부터 시작된다.", "노자, 『도덕경』"], ["배우고 때때로 익히면 또한 기쁘지 아니한가.", "『논어』"], ["배우기만 하고 생각하지 않으면 얻는 것이 없다.", "『논어』"], ["성실함은 하늘의 도리이고, 성실하려 애쓰는 것은 사람의 도리다.", "『중용』"], ["남이 한 번에 해내면 나는 백 번 하고, 남이 열 번에 해내면 나는 천 번 한다.", "『중용』"], ["날마다 새로워지고, 또 날마다 새로워져라.", "『대학』"], ["하늘의 운행은 굳세니, 군자는 스스로 힘써 쉬지 않는다.", "『주역』"], ["큰 그릇은 늦게 이루어진다.", "대기만성, 『도덕경』"], ["형설지공: 반딧불과 눈빛에 비춰 공부하던 정성으로.", "고사성어"], ["주경야독: 낮에는 밭을 갈고 밤에는 글을 읽는다.", "고사성어"], ["수적천석: 떨어지는 물방울이 바위를 뚫는다.", "고사성어"], ["우공이산: 꾸준히 하면 산도 옮길 수 있다.", "고사성어, 『열자』"], ["마부작침: 도끼를 갈아 바늘을 만든다.", "고사성어"], ["절차탁마: 깎고 다듬고 쪼고 갈아 빛을 낸다.", "고사성어, 『시경』"], ["수불석권: 손에서 책을 놓지 않는다.", "고사성어"], ["낙숫물이 댓돌을 뚫는다.", "속담"], ["티끌 모아 태산.", "속담"], ["시작이 반이다.", "속담"], ["구슬이 서 말이라도 꿰어야 보배다.", "속담"], ["공든 탑이 무너지랴.", "속담"], ["우물을 파도 한 우물을 파라.", "속담"], ["뜻이 있는 곳에 길이 있다.", "속담"], ["하늘은 스스로 돕는 자를 돕는다.", "속담"], ["오늘 앉아 있는 이 한 교시가 내일의 나를 만듭니다.", ""], ["재능은 빌릴 수 없어도 성실은 오늘부터 내 것이 됩니다.", ""], ["빨리 가는 것보다 멈추지 않는 것이 먼저입니다.", ""], ["어제보다 한 쪽 더, 그것이면 충분합니다.", ""], ["도장 하나는 작아도, 쌓인 도장은 내 성실함의 기록입니다.", ""], ["애교, 협동, 정직. 오늘도 웅천인답게.", ""], ["조용한 교실의 오늘이 먼 훗날의 자랑이 됩니다.", ""], ["힘든 날에 앉아 있던 한 시간이 가장 오래 남습니다.", ""]];
@@ -429,7 +433,7 @@ var CONF0=[
   ["교사기기수","3","선생님 한 명이 등록해 쓸 수 있는 기기 수(휴대폰·PC·태블릿 무엇이든). 넘으면 관리자가 사람 탭에서 기기 등록을 풀어 줍니다."],
   ["시험이름","2학기 기말고사","디데이에 나오는 이름"],
   ["시험일","2026-12-01","시험 첫날. 이날이 되면 디데이가 사라집니다. 비우면 표시하지 않습니다. 출처: 2026학년도 학교교육계획서 177쪽(2학기 2차 지필고사, 1·2학년, 12월 1일~4일)"],
-  ["수령안내","매주 금요일에 받아요. 주말이 지나면 별은 사라지고 도장은 남아요.","학생 화면 상품권 칸에 나오는 문구"],
+  ["수령안내","도장 5개마다 별 1개. 별은 담임 선생님께 가서 문화상품권으로 받아요. 받지 않은 별은 월요일 0시에 사라지고 도장은 남아요.","학생 화면 상품권 칸에 나오는 문구"],
   ["개인정보안내","수집 항목: 학번, 이름, 학급, 야자 신청 교시, 도장 기록, 문화상품권 수령 기록, PIN(변환해 저장), 학교 밖에서 도장을 찍으려 한 때의 위치. 목적: 참여 확인과 문화상품권 지급. 보유 기간: 이번 학년도 운영이 끝날 때까지이며 이후 삭제합니다. 저장 위치: 담당 선생님이 관리하는 구글 시트.","동의서 ① 개인정보 수집·이용"],
   ["위치안내","도장을 찍는 순간에만 폰의 위치를 한 번 받아 학교 근처인지 확인합니다. 학교 근처이면 확인 결과만 남기고, 학교 근처가 아니면 그때의 위치(주소·좌표·학교와의 거리)를 기록해 담당 선생님이 확인합니다. 도장을 찍을 때가 아니면 위치를 받지 않습니다.","동의서 ② 위치 정보 이용"],
   ["기기안내","도장을 처음 찍는 폰을 내 폰으로 등록해, 그 폰에서만 도장이 찍히게 합니다. 브라우저에 만든 임의의 값을 변환해 저장하며, 전화번호나 기기 고유번호는 받지 않습니다. 폰을 바꾸면 선생님이 등록을 풀어 줍니다.","동의서 ③ 기기 등록"],
@@ -615,12 +619,32 @@ function make(db,env){
     });
     return {today:td,run:run,off:off,cur:cur,next:next};
   }
+  /* 교시 마감: 감독 선생님이 그 학년 그 교시를 마감하면 학생 QR 도장이 막힌다(선생님은 표에서 찍을 수 있다) */
+  function closedRow(d,p,g){var a=live("마감").filter(function(r){return dayOf(r)===S(d)&&S(r["교시"])===String(p)&&S(r["학년"])===String(g);});return a[0]||null;}
+  function periodClose(a,p){
+    staff(a);
+    var g=S(p.g)||S(a.year);if(YEARS.indexOf(g)<0)fail("학년을 골라 주세요.");
+    if(yearsOf(a).indexOf(g)<0)fail(scopeMsg(a));
+    var st=qrState();if(!st.cur)fail("지금은 도장 시간이 아니라 마감할 교시가 없어요.");
+    if(closedRow(st.today,st.cur.no,g))return {ok:true,already:true,period:st.cur.no};
+    db.add("마감",{"id":"c"+env.uid(),"날짜":st.today,"교시":String(st.cur.no),"학년":g,"교사":a.name,"시각":stampOf(now())});
+    return {ok:true,period:st.cur.no};
+  }
+  function periodReopen(a,p){
+    staff(a);
+    var g=S(p.g)||S(a.year);if(yearsOf(a).indexOf(g)<0)fail(scopeMsg(a));
+    var st=qrState();if(!st.cur)fail("지금은 도장 시간이 아니에요.");
+    var r=closedRow(st.today,st.cur.no,g);if(!r)fail("마감된 교시가 없어요.");
+    db.set("마감","id",S(r["id"]),{"취소":"Y","취소자":a.name,"취소시각":stampOf(now())});
+    return {ok:true,period:st.cur.no};
+  }
   function scan(p){
     var code=S(p.q),m=[code,code];
     if(YEARS.indexOf(code)<0)needQr("QR을 다시 찍어 주세요.");
     /* 도장 시간이 아니면 QR은 그냥 구경하러 들어오는 문이다 */
     var st=qrState();
     if(!st.cur)return {closed:true,g:m[1],conf:publicConf()};
+    if(closedRow(st.today,st.cur.no,m[1]))return {closed:true,ended:true,g:m[1],period:st.cur.no,conf:publicConf()};
     var body=[m[1],st.today,st.cur.no,now().getTime()+PASS_MIN*60000].join("|");
     return {pass:body+"."+env.hmac("pass|"+body),g:m[1],date:st.today,period:st.cur.no,n:st.cur.n,conf:publicConf()};
   }
@@ -650,6 +674,7 @@ function make(db,env){
     /* 찍은 학생 이름: 교실 화면에 떠서, 안 온 학생 이름이 올라오면 바로 눈에 띈다 */
     done.sort(function(x,y){return S(x["시각"])<S(y["시각"])?1:-1;});
     out.period=st.cur.no;out.n=st.cur.n;out.close=clock(st.cur.close);out.count=done.length;
+    var cr=closedRow(st.today,st.cur.no,g);if(cr)out.closedBy={t:S(cr["교사"]),at:S(cr["시각"]).slice(11,16)};
     out.names=S(conf()["QR이름표시"])==="N"?[]:done.map(function(r){return S(r["이름"]);});
     out.remainMs=qrSec()*1000;
     return out;
@@ -823,6 +848,8 @@ function make(db,env){
     return {open:!!st.cur,period:st.cur?st.cur.no:0,close:st.cur?clock(st.cur.close):"",off:st.off,run:st.run,
       next:st.next?{no:st.next.no,open:clock(st.next.open),close:clock(st.next.close)}:null};
   }
+  /* 학생 화면용: 우리 학년 그 교시가 마감됐으면 도장 시간이 아닌 것으로 */
+  function qrFor(a){var q=qrInfo();if(q.open&&closedRow(today(),q.period,yearOf(a.row))){q.open=false;q.ended=true;}return q;}
   /* ── 학생 화면: 월~목 × 교시 ── */
   function studentView(a){
     var td=today(),wk=weekOf(td),off=offDays(),cells={},weeks={};
@@ -842,7 +869,7 @@ function make(db,env){
     });
     var history=Object.keys(weeks).filter(function(w){return w!==wk;}).sort().reverse().map(function(w){return weeks[w];});
     var cur=weeks[wk]||{n:0};
-    return {kind:"student",me:{hakbun:a.id,name:a.name,cls:a.cls},qr:qrInfo(),today:td,wk:wk,days:days,plan:planOf(a.row),cells:cells,
+    return {kind:"student",me:{hakbun:a.id,name:a.name,cls:a.cls},qr:qrFor(a),today:td,wk:wk,days:days,plan:planOf(a.row),cells:cells,
       weekN:cur.n,history:history,tally:tallyAll()(a.id)};
   }
   /* QR로 들어온 학생: 그 교시 도장이 찍히고 자기 도장판이 열린다 */
@@ -860,6 +887,7 @@ function make(db,env){
     if(a.kind!=="student")fail("학생 계정으로 들어와 주세요.");
     var P=readPass(p.pass);if(!P)needQr();
     if(yearOf(a.row)!==P.g)fail("이 QR은 "+P.g+"학년용이에요. 우리 학년 화면의 QR을 찍어 주세요.");
+    if(closedRow(P.date,P.period,P.g))fail("QR:이번 교시 도장은 감독 선생님이 마감했어요. 감독 선생님께 말씀해 주세요.");
     /* 본인 폰에서만: 처음 찍은 폰이 내 폰으로 등록되고, 그 폰은 다른 학생이 쓸 수 없다.
        폰이 없는 학생은 선생님이 표에서 찍어 주고, 폰을 바꾼 학생은 선생님이 등록을 풀어 준다 */
     if(!S(p.device))fail("이 브라우저에서는 찍을 수 없어요. 폰의 기본 인터넷 앱으로 QR을 찍어 주세요.");
@@ -944,8 +972,8 @@ function make(db,env){
       var no=canStamp(a,d,pn);if(no)return {ok:false,msg:no};
       var key=hb+"|"+d+"|"+pn;
       if(idx[key])return {ok:false,already:true,id:idx[key].id,t:idx[key].t,m:idx[key].m,n:idx[key].n};
-      /* 선생님은 도장 1개나 2개를 골라 찍을 수 있다. 고르지 않으면 그 교시 도장 수 */
-      var id="d"+env.uid(),pick=Number(it.n),cnt=(pick===1||pick===2)?pick:schedule()[pn-1].n;
+      /* 선생님은 도장 1개나 2개를 골라 찍을 수 있다(그 교시 도장 수까지, 1교시는 1개). 고르지 않으면 그 교시 도장 수 */
+      var id="d"+env.uid(),pick=Number(it.n),base=schedule()[pn-1].n,cnt=(pick===1||pick===2)?Math.min(pick,base):base; /* 1교시는 1개까지 */
       db.add("도장",{"id":id,"날짜":d,"요일":DOW[dowIdx(d)],"교시":String(pn),"개수":String(cnt),
         "학번":hb,"이름":S(s["이름"]),"반":S(s["반"]),"방식":"선생님","교사":a.name,"시각":stampOf(now())});
       idx[key]={id:id,t:a.name,m:"선생님",n:cnt};
@@ -980,18 +1008,23 @@ function make(db,env){
       var t=T(h);
       paidN+=t.got;
       if(t.can>0){owedN+=t.can;people++;}
-      if(t.stamps>0||t.got>0)list.push({h:h,n:S(r["이름"]),c:S(r["반"]),stamps:t.stamps,stars:t.stars,left:t.left,can:t.can,got:t.got});
+      if(t.stamps>0||t.got>0)list.push({h:h,n:S(r["이름"]),c:S(r["반"]),stamps:t.stamps,stars:t.stars,left:t.left,can:t.can,got:t.got,expired:t.expired});
     });
     list.sort(function(x,y){return (y.can-x.can)||clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
     var log=live("지급").filter(function(r){return inScope(a,r["반"]);}).map(function(r){
       return {id:S(r["id"]),at:S(r["시각"]).slice(0,16),h:S(r["학번"]),n:S(r["이름"]),c:S(r["반"]),qty:Number(r["매수"])||0,by:S(r["처리자"])};
     }).sort(function(x,y){return x.at<y.at?1:-1;}).slice(0,50);
     var td=today();
-    return {canPay:a.grade===ADMIN,payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
+    /* 사라진 별: 받지 않아 월요일 0시에 사라진 별(관리자·담임이 본다) */
+    var lost=list.filter(function(x){return x.expired>0;}).map(function(x){return {h:x.h,n:x.n,c:x.c,expired:x.expired,got:x.got};}).sort(function(x,y){return clsSort(x.c,y.c)||(x.h<y.h?-1:1);});
+    return {canPay:a.grade===ADMIN,payCls:a.grade===ADMIN?"":S(a.cls),lost:lost,lostN:lost.reduce(function(s,x){return s+x.expired;},0),payDay:dowIdx(td)===4,friday:addDays(weekOf(td),4),list:list,log:log,voucher:V,owedN:owedN,owedWon:owedN*V,people:people,paidN:paidN,paidWon:paidN*V};
   }
+  /* 상품권 배부 기록: 관리자는 누구든, 담임 선생님은 자기 반 학생만(학생은 담임 선생님께 받으러 간다) */
+  function payer(a,cls){staff(a);if(a.grade===ADMIN)return;if(!S(a.cls)||S(cls)!==S(a.cls))fail("관리자와 그 반 담임 선생님만 배부를 기록할 수 있어요.");}
   function giftPay(a,p){
-    admin(a);
+    staff(a);
     var hb=S(p.hakbun),s=rowOf("명단","학번",hb);if(!s)fail("명단에 없는 학번입니다.");
+    payer(a,s["반"]);
     var t=tallyAll()(hb);
     if(t.can<1)fail("지금 받을 수 있는 상품권이 없어요.");
     var id="g"+env.uid();
@@ -999,9 +1032,10 @@ function make(db,env){
     return {ok:true,id:id,qty:t.can};
   }
   function giftUndo(a,p){
-    admin(a);
+    staff(a);
     var r=rowOf("지급","id",S(p.id));
     if(!r||S(r["취소"])==="Y")fail("배부 기록을 찾지 못했어요.");
+    payer(a,r["반"]);
     db.set("지급","id",S(p.id),{"취소":"Y","취소자":a.name,"취소시각":stampOf(now())});
     return {ok:true};
   }
@@ -1165,6 +1199,8 @@ function make(db,env){
       case "giftUndo":return giftUndo(a,p);
       case "overview":return overview(a);
       case "attendance":return attendance(a,p);
+      case "periodClose":return periodClose(a,p);
+      case "periodReopen":return periodReopen(a,p);
       case "people":return people(a);
       case "teacherSet":return teacherSet(a,p);
       case "pinReset":return pinReset(a,p);
@@ -1580,7 +1616,7 @@ function rStudent(){
   var q=V.qr||{};
   if(!N){
     banner+=q.open?'<div class="woong on"><div class="bear">'+bearSVG("hi")+'</div><div class="bubble"><b>지금은 '+q.period+'교시 도장 시간이에요</b>'+esc(q.close)+'까지 교실에 붙은 QR을 찍으면 도장이 찍혀요.</div></div>':
-      woong("hi",'<b>지금은 구경만 할 수 있어요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
+      q.ended?woong("hi",'<b>'+q.period+'교시 도장은 마감됐어요</b>감독 선생님이 이번 교시 도장을 마감했어요. 못 찍었으면 감독 선생님께 말씀해 주세요.'):woong("hi",'<b>지금은 구경만 할 수 있어요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
   }
   if(N){
     banner+=winPic(N);
@@ -1619,7 +1655,7 @@ function rStudent(){
     '<section class="card"><div class="stars"><span class="row" style="gap:3px;flex-wrap:wrap">'+stars+'</span><span class="big">이번 주 별 '+T.left+'개</span></div>'+
     '<div class="track" aria-hidden="true">'+track+'</div>'+
     '<p class="hint">다음 별까지 도장 <b>'+T.toNext+'개</b> · 지금까지 모은 도장 '+T.stamps+'개</p>'+
-    '<p class="hint">별은 금요일에 문화상품권으로 바꿔요. 주말이 지나면 별은 사라지고 도장은 남아요.'+(T.expired?' 지금까지 사라진 별 '+T.expired+'개.':'')+'</p>'+gift+got+'</section>'+
+    '<p class="hint">별은 담임 선생님께 가서 문화상품권으로 받아요. 받지 않은 별은 월요일 0시에 사라지고 도장은 남아요.'+(T.expired?' 지금까지 사라진 별 '+T.expired+'개.':'')+'</p>'+gift+got+'</section>'+
     hist+'<p class="rule">'+esc(ruleText())+'</p>'+pinBox()+'<div class="foot"><button class="linkbtn" data-a="logout-stu">로그아웃</button></div></div></div>'+motto()+'</main>';
 }
 
@@ -1893,6 +1929,7 @@ function drawQr(r){
   if(r.open){
     b.innerHTML='<h2>'+esc(r.g)+'학년 '+r.period+'교시 도장 시간</h2><p class="sub">'+esc(pp.start)+'~'+esc(pp.end)+' 수업 · '+esc(r.close)+'까지 · 도장 '+r.n+'개</p>'+code+
       '<p class="count">지금까지 찍은 학생 '+r.count+'명</p>'+
+      (r.closedBy?'<div class="closedby"><b>'+r.period+'교시 도장 마감됨</b> '+esc(r.closedBy.t)+' 선생님 · '+esc(r.closedBy.at)+' <button class="btn ghost sm" data-a="qr-reopen">마감 풀기</button></div>':'<button class="btn closebtn" data-a="qr-close">'+r.period+'교시 도장 마감</button>')+
       (r.names&&r.names.length?'<div class="names">'+r.names.map(function(x){return '<span>'+esc(x)+'</span>';}).join("")+'</div>':"")+bigBtn;
     return;
   }
@@ -1909,15 +1946,17 @@ function paintGift(){
     '<div class="stat"><b>'+G.people+'명</b><span>지금 받을 학생</span></div>'+
     '<div class="stat"><b>'+G.owedN+'매</b><span>나눠 줄 상품권<br>'+won(G.owedWon)+'</span></div>'+
     '<div class="stat"><b>'+G.paidN+'매</b><span>지금까지 준 상품권<br>'+won(G.paidWon)+'</span></div></div>'+
-    '<section class="card"><div class="head"><h2>금요일 배부</h2><span class="hint">'+(G.payDay?"오늘이 배부일이에요.":"이번 배부일: "+md(G.friday)+"(금)")+(G.canPay?'':' · 배부 기록은 관리자 선생님이 해요')+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
+    '<section class="card"><div class="head"><h2>상품권 배부</h2><span class="hint">학생이 담임 선생님께 받으러 와요'+(G.canPay?'':' · 우리 반('+esc(G.payCls)+') 학생만 기록할 수 있어요')+'</span><span class="end"><button class="btn ghost sm" data-a="gift-csv">수령 대장 내려받기</button></span></div>'+
     '<div class="row" style="margin-bottom:10px"><input type="search" id="q2" placeholder="이름이나 학번으로 찾기" value="'+esc(q)+'" style="flex:1;min-width:180px" aria-label="이름이나 학번으로 찾기">'+
     '<button class="chip" data-a="gift-all" aria-pressed="'+all+'">모두 보기</button></div>'+
     (list.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">모은 도장</th><th class="r">남은 별</th><th class="r">받음</th><th></th></tr></thead><tbody>'+list.map(function(x){
-      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0&&G.canPay?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
+      return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.stamps+'</td><td class="r">'+x.left+'</td><td class="r">'+x.got+'</td><td class="r">'+(x.can>0&&(G.canPay||x.c===G.payCls)?'<button class="btn gold sm" data-a="gift-pay" data-h="'+esc(x.h)+'" data-n="'+esc(x.n)+'" data-q="'+x.can+'">'+x.can+'매 배부</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">'+(q?"찾는 학생이 없어요.":"지금 받을 학생이 없어요.")+'</div>')+'</section>'+
+    '<section class="card"><div class="head"><h2>사라진 별</h2><span class="hint">받지 않아 월요일 0시에 사라진 별 · 모두 '+(G.lostN||0)+'개</span></div>'+
+    ((G.lost||[]).length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">사라진 별</th><th class="r">받은 상품권</th></tr></thead><tbody>'+G.lost.map(function(x){return '<tr><td><b class="tn">'+esc(x.n)+'</b><small class="ts">'+esc(x.c)+' · '+esc(x.h)+'</small></td><td class="r">'+x.expired+'</td><td class="r">'+x.got+'</td></tr>';}).join("")+'</tbody></table></div>':'<div class="empty">사라진 별이 없어요.</div>')+'</section>'+
     '<section class="card"><div class="head"><h2>최근 배부 기록</h2></div>'+
     (G.log.length?'<div class="tw"><table class="t"><thead><tr><th>이름</th><th class="r">매수</th><th>처리</th><th></th></tr></thead><tbody>'+G.log.map(function(l){
-      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r">'+(G.canPay?'<button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button>':'')+'</td></tr>';
+      return '<tr><td><b class="tn">'+esc(l.n)+'</b><small class="ts">'+esc(l.c)+' · '+esc(l.at.slice(5))+'</small></td><td class="r">'+l.qty+'</td><td>'+esc(l.by)+'</td><td class="r">'+(G.canPay||l.c===G.payCls?'<button class="btn ghost sm" data-a="gift-undo" data-id="'+esc(l.id)+'" data-n="'+esc(l.n)+'">무르기</button>':'')+'</td></tr>';
     }).join("")+'</tbody></table></div>':'<div class="empty">아직 배부 기록이 없어요.</div>')+'</section>'+footer();
 }
 function giftCsv(){
@@ -2024,11 +2063,13 @@ if(a==="f-extra"){App.filter={mode:"extra"};App.q="";return paintStamp();}
     return loadWeek(addDays(App.view.wk,Number(d.v)));
   }
   if(a==="qr-g"){App.qrG=d.v;App.qrPicked=true;clearTimeout(App.qrT);return paintQr();}
-  if(a==="qr-big"){var b=el("qrbox");b.classList.toggle("big");t.textContent=b.classList.contains("big")?"작게 보기":"크게 보기";return;}
+  if(a==="qr-close"){if(!window.confirm(App.qrG+"학년 이번 교시 도장을 마감할까요? 학생은 더 이상 QR로 찍을 수 없어요(선생님은 표에서 찍을 수 있어요)."))return;t.disabled=true;return tcall("periodClose",{g:App.qrG}).then(function(){toast("마감했어요.");qrTick();}).catch(function(e){toast(e.message);t.disabled=false;});}
+if(a==="qr-reopen"){if(!window.confirm("마감을 풀까요? 다시 QR로 찍을 수 있어요."))return;t.disabled=true;return tcall("periodReopen",{g:App.qrG}).then(function(){toast("마감을 풀었어요.");qrTick();}).catch(function(e){toast(e.message);t.disabled=false;});}
+if(a==="qr-big"){var b=el("qrbox");b.classList.toggle("big");t.textContent=b.classList.contains("big")?"작게 보기":"크게 보기";return;}
   if(a==="gift-all"){App.giftAll=!App.giftAll;return paintGift();}
   if(a==="gift-csv")return giftCsv();
   if(a==="gift-pay"){
-    if(!window.confirm((App.data.gift.payDay?"":"오늘은 금요일이 아니에요. ")+d.n+" 학생에게 상품권 "+d.q+"매를 준 것으로 기록할까요? 별 "+d.q+"개가 빠지고 도장은 남아요."))return;
+    if(!window.confirm(d.n+" 학생에게 상품권 "+d.q+"매를 준 것으로 기록할까요? 별 "+d.q+"개가 빠지고 도장은 남아요."))return;
     t.disabled=true;
     return tcall("giftPay",{hakbun:d.h}).then(function(r){toast(d.n+" 학생 "+r.qty+"매 배부 기록했어요.");paintTab();}).catch(function(e){toast(e.message);t.disabled=false;});
   }
