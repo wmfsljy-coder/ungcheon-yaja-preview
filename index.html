@@ -115,6 +115,7 @@ label.f input{margin-top:5px;font-weight:400}
 .saying{border-left:4px solid var(--gold-line);padding:2px 0 2px 12px;margin:0 0 14px}
 .saying b{display:block;font-family:var(--title);font-weight:400;font-size:17px;line-height:1.45;color:var(--night)}
 .saying small{font-size:12px;color:var(--muted)}
+.saying .greet{display:block;font-size:13px;font-weight:700;color:var(--gold-ink,#8a6a1f);margin-bottom:2px}
 
 /* 도장 */
 .seal{width:100%;height:100%;display:block}
@@ -388,7 +389,7 @@ input[type=text],input[type=password],input[type=search],select{font-size:16px}
    시트(Code.gs)와 시연본(demo.html), 시험(tools/tests)이 이 파일 하나를 같이 씁니다.
    시트·브라우저에 기대는 것은 db, env 두 개로만 받습니다.
 
-   흐름: 학생은 평소에 주소로 들어와 자기 도장판을 구경만 한다.
+   흐름: 학생은 언제든 주소로 들어와 자기 도장판을 볼 수 있지만, 도장은 도장 찍는 시간에만 찍힌다.
          교시 끝 무렵 화면의 QR을 찍으면 그 교시 도장이 자동으로 찍힌다.
          교시마다 도장 수가 다르고(1교시 1개, 2·3교시 2개), 도장 5개가 모일 때마다 별 1개 = 문화상품권 1매(5,000원).
          상품권은 매주 금요일에 배부한다. 받으면 별이 빠지고, 주말이 지나면 남은 별은 사라진다. 도장은 언제나 남는다.
@@ -410,8 +411,8 @@ var HEAD={
   "링크":["구분","링크","설명"],
   "마감":["id","날짜","교시","학년","교사","시각","취소","취소자","취소시각"]
 };
-/* 문구 탭이 비어 있을 때 쓰는 기본 문구. 출처가 분명한 고전·속담과 학교 안내 문구만 둔다 */
-var SAYINGS=[["천 리 길도 한 걸음부터 시작된다.", "노자, 『도덕경』"], ["배우고 때때로 익히면 또한 기쁘지 아니한가.", "『논어』"], ["배우기만 하고 생각하지 않으면 얻는 것이 없다.", "『논어』"], ["성실함은 하늘의 도리이고, 성실하려 애쓰는 것은 사람의 도리다.", "『중용』"], ["남이 한 번에 해내면 나는 백 번 하고, 남이 열 번에 해내면 나는 천 번 한다.", "『중용』"], ["날마다 새로워지고, 또 날마다 새로워져라.", "『대학』"], ["하늘의 운행은 굳세니, 군자는 스스로 힘써 쉬지 않는다.", "『주역』"], ["큰 그릇은 늦게 이루어진다.", "대기만성, 『도덕경』"], ["형설지공: 반딧불과 눈빛에 비춰 공부하던 정성으로.", "고사성어"], ["주경야독: 낮에는 밭을 갈고 밤에는 글을 읽는다.", "고사성어"], ["수적천석: 떨어지는 물방울이 바위를 뚫는다.", "고사성어"], ["우공이산: 꾸준히 하면 산도 옮길 수 있다.", "고사성어, 『열자』"], ["마부작침: 도끼를 갈아 바늘을 만든다.", "고사성어"], ["절차탁마: 깎고 다듬고 쪼고 갈아 빛을 낸다.", "고사성어, 『시경』"], ["수불석권: 손에서 책을 놓지 않는다.", "고사성어"], ["낙숫물이 댓돌을 뚫는다.", "속담"], ["티끌 모아 태산.", "속담"], ["시작이 반이다.", "속담"], ["구슬이 서 말이라도 꿰어야 보배다.", "속담"], ["공든 탑이 무너지랴.", "속담"], ["우물을 파도 한 우물을 파라.", "속담"], ["뜻이 있는 곳에 길이 있다.", "속담"], ["하늘은 스스로 돕는 자를 돕는다.", "속담"], ["오늘 앉아 있는 이 한 교시가 내일의 나를 만듭니다.", ""], ["재능은 빌릴 수 없어도 성실은 오늘부터 내 것이 됩니다.", ""], ["빨리 가는 것보다 멈추지 않는 것이 먼저입니다.", ""], ["어제보다 한 쪽 더, 그것이면 충분합니다.", ""], ["도장 하나는 작아도, 쌓인 도장은 내 성실함의 기록입니다.", ""], ["애교, 협동, 정직. 오늘도 웅천인답게.", ""], ["조용한 교실의 오늘이 먼 훗날의 자랑이 됩니다.", ""], ["힘든 날에 앉아 있던 한 시간이 가장 오래 남습니다.", ""]];
+/* 문구 탭이 비어 있을 때 쓰는 기본 문구(노력·인내·성실이 날마다 돌아가며 나온다). 출처가 분명한 고전·속담과 학교 문구만 둔다. [문구, 출처, 주제] */
+var SAYINGS=[["남이 한 번에 해내면 나는 백 번 하고, 남이 열 번에 해내면 나는 천 번 한다.","『중용』","노력"], ["수적천석: 떨어지는 물방울이 끝내 바위를 뚫는다.","고사성어","인내"], ["성실함은 하늘의 도리이고, 성실하려 애쓰는 것은 사람의 도리다.","『중용』","성실"], ["하늘의 운행은 굳세니, 군자는 스스로 힘써 쉬지 않는다.","『주역』","노력"], ["마부작침: 도끼를 갈아 바늘을 만든다.","고사성어","인내"], ["공든 탑이 무너지랴.","속담","성실"], ["우공이산: 꾸준히 힘쓰면 산도 옮길 수 있다.","고사성어, 『열자』","노력"], ["큰 그릇은 늦게 이루어진다.","대기만성, 『도덕경』","인내"], ["작은 일에도 정성을 다하면 그 정성이 겉으로 드러난다.","『중용』","성실"], ["천 리 길도 한 걸음부터 시작된다.","노자, 『도덕경』","노력"], ["칠전팔기: 일곱 번 넘어져도 여덟 번 일어난다.","고사성어","인내"], ["티끌 모아 태산.","속담","성실"], ["형설지공: 반딧불과 눈빛에 비춰 공부하던 그 정성으로.","고사성어","노력"], ["낙숫물이 댓돌을 뚫는다.","속담","인내"], ["우물을 파도 한 우물을 파라.","속담","성실"], ["뜻이 있는 곳에 길이 있다.","속담","노력"], ["빨리 가는 것보다 멈추지 않는 것이 먼저예요.","","인내"], ["재능은 빌릴 수 없어도 성실은 오늘부터 내 것이 돼요.","","성실"], ["주경야독: 낮에는 밭을 갈고 밤에는 글을 읽는다.","고사성어","노력"], ["힘든 날에 앉아 있던 한 시간이 가장 오래 남아요.","","인내"], ["수불석권: 손에서 책을 놓지 않는다.","고사성어","성실"], ["어제보다 한 쪽 더, 그것이면 충분해요.","","노력"], ["절차탁마: 깎고 다듬고 쪼고 갈아야 빛이 난다.","고사성어, 『시경』","인내"], ["도장 하나는 작아도, 쌓인 도장은 내 성실함의 기록이에요.","","성실"], ["오늘 앉아 있는 이 한 교시가 내일의 나를 만들어요.","","노력"], ["지금 참고 앉아 있는 시간이 시험지 앞에서 나를 지켜 줘요.","","인내"], ["매일 같은 시간, 같은 자리. 그게 실력이 돼요.","","성실"]];
 var CONF0=[
   ["앱이름","웅천 야자 도장판","화면 맨 위에 나오는 이름"],
   ["학교이름","웅천고등학교","화면 맨 위 작은 글씨"],
@@ -554,7 +555,7 @@ function make(db,env){
     var list=db.rows("문구").filter(function(r){return S(r["문구"]);}).map(function(r){return [S(r["문구"]),S(r["출처"])];});
     if(!list.length)list=SAYINGS;
     var days=Math.floor(parseYmd(today()).getTime()/864e5),x=list[days%list.length];
-    return {t:x[0],s:x[1]||""};
+    return {t:x[0],s:x[1]||"",k:x[2]||""};
   }
   /* 위치 확인: 켜져 있고 학교 좌표가 제대로 적혀 있을 때만 */
   function geoSpot(){
@@ -1308,8 +1309,8 @@ var DemoServer=(function(){
   }
   return {
     api:function(n,p){try{return JSON.parse(JSON.stringify(api(n,p)));}catch(e){return {error:String(e.message)};}},
-    accounts:[["view","학생: 평소에 구경하기"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["view2","2학년 학생: 평소에 구경하기"],["stu2","2학년 학생: QR 찍기"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
-    clocks:[["18:20","18:20 1교시 도장 시간"],["19:20","19:20 2교시 도장 시간"],["20:30","20:30 3교시 도장 시간"],["18:00","18:00 구경 시간"]],
+    accounts:[["view","학생: 도장 시간이 아닐 때"],["stu","학생: QR 찍기"],["fresh","학생: 처음 QR 찍기"],["other","학생: 친구 폰으로 찍어 보기"],["home","학생: 링크 받아 집에서 찍어 보기"],["deny","학생: 위치 허용 안 함"],["view2","2학년 학생: 평소에 구경하기"],["stu2","2학년 학생: QR 찍기"],["sup","1학년 담임 화면"],["sup2","2학년 담임 화면"],["admin","관리자 화면"],["login","처음 로그인 화면"]],
+    clocks:[["18:20","18:20 1교시 도장 시간"],["19:20","19:20 2교시 도장 시간"],["20:30","20:30 3교시 도장 시간"],["18:00","18:00 도장 시간 아님"]],
     fresh:{hakbun:fresh[0],name:fresh[1]},
     enter:enter,setClock:setClock,
     /* 주소로 바로 열기: ?who=sup&clock=20:30 처럼 계정과 시각을 고른다 */
@@ -1421,9 +1422,14 @@ function winPic(N){
   var src=sceneSrc();if(!src||!N||N.already)return "";
   return '<figure class="winpic"><img src="'+src+'" alt="웅천읍성과 웅천고 그림"><figcaption><b>'+N.period+'교시 도장 '+N.n+'개!</b><span>오늘도 한 칸 채웠어요</span></figcaption></figure>';
 }
+/* 매일 바뀌는 인사: 노력·인내·성실 문구가 날마다 돌아가며 나온다 */
+function greetLine(s){
+  var V=App.view,me=V&&V.me,who=me&&me.name?(V.kind==="student"?"안녕, "+me.name+"!":"안녕하세요, "+me.name+" 선생님!"):"안녕하세요!";
+  return who+(s.k?" 오늘의 마음가짐은 '"+s.k+"'이에요.":" 오늘의 한마디예요.");
+}
 function sayingHtml(){
   var s=App.conf&&App.conf.saying;if(!s||!s.t)return "";
-  return '<blockquote class="saying" style="margin-inline:0"><b>'+esc(s.t)+'</b>'+(s.s?'<small>'+esc(s.s)+'</small>':"")+'</blockquote>';
+  return '<blockquote class="saying" style="margin-inline:0"><span class="greet">'+esc(greetLine(s))+'</span><b>'+esc(s.t)+'</b>'+(s.s?'<small>'+esc(s.s)+'</small>':"")+'</blockquote>';
 }
 function motto(){return '<p class="motto"><b>애교 · 협동 · 정직</b></p>';}
 function topBar(right,noWall){
@@ -1473,9 +1479,9 @@ function rLogin(err){
       '<p class="hint" style="margin-top:10px">학년별 코드는 담당 선생님께 받아 주세요.</p>';
   }
   var back=L.step==="id"?"":'<button type="button" class="linkbtn" data-a="login-back" style="display:block;margin:6px auto 0">처음으로</button>';
-  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">평소에는 내 도장판을 구경할 수 있어요. 도장은 정해진 시간에 꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍어야 찍혀요.</div>';
+  var note=isT||L.step!=="id"?"":App.pass&&App.scan?'<div class="note">QR을 찍었어요. 로그인하면 '+App.scan.period+'교시 도장이 찍혀요.</div>':'<div class="note">도장은 도장 찍는 시간에만 찍을 수 있어요. 시간에 맞춰 꿈실카페(1학년 꿈실카페1, 2학년 꿈실카페2)에 붙은 QR을 찍어야 찍혀요.</div>';
   var seg=L.step==="id"&&!App.pass?'<div class="seg"><button type="button" data-a="login-who" data-v="student" aria-pressed="'+!isT+'">학생</button><button type="button" data-a="login-who" data-v="teacher" aria-pressed="'+isT+'">선생님</button></div>':"";
-  var hi=L.step==="id"&&!isT?woong("hi",'<b>안녕! 나는 웅이야</b>'+(App.pass&&App.scan?"로그인하면 "+App.scan.period+"교시 도장이 찍혀.":"평소에는 도장판을 구경하고, 정해진 시간에 QR을 찍으면 도장이 찍혀.")):note;
+  var hi=L.step==="id"&&!isT?woong("hi",'<b>안녕! 나는 웅이야</b>'+(App.pass&&App.scan?"로그인하면 "+App.scan.period+"교시 도장이 찍혀.":"도장은 도장 찍는 시간에만 찍을 수 있어. 시간에 맞춰 QR을 찍어 줘.")):note;
   el("app").innerHTML=topBar(null,true)+heroHtml()+'<div class="wall" aria-hidden="true"></div><main class="login">'+sayingHtml()+seg+hi+
     '<div class="card"><form id="f-login" autocomplete="off" novalidate>'+E+body+'</form>'+back+'</div>'+
     '<p class="rule">'+esc(ruleText())+'</p>'+timesHtml()+motto()+'</main>';
@@ -1616,7 +1622,7 @@ function rStudent(){
   var q=V.qr||{};
   if(!N){
     banner+=q.open?'<div class="woong on"><div class="bear">'+bearSVG("hi")+'</div><div class="bubble"><b>지금은 '+q.period+'교시 도장 시간이에요</b>'+esc(q.close)+'까지 '+room(String(App.view.me.hakbun||'').charAt(0))+'에 붙은 QR을 찍으면 도장이 찍혀요.</div></div>':
-      q.ended?woong("hi",'<b>'+q.period+'교시 도장은 마감됐어요</b>감독 선생님이 이번 교시 도장을 마감했어요. 못 찍었으면 감독 선생님께 말씀해 주세요.'):woong("hi",'<b>지금은 구경만 할 수 있어요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
+      q.ended?woong("hi",'<b>'+q.period+'교시 도장은 마감됐어요</b>감독 선생님이 이번 교시 도장을 마감했어요. 못 찍었으면 감독 선생님께 말씀해 주세요.'):woong("hi",'<b>지금은 도장 찍는 시간이 아니에요</b>'+esc(q.off?"오늘은 쉬는 날이에요.":!q.run?"도장은 월~목에 찍을 수 있어요.":q.next?"다음 도장 시간: "+q.next.no+"교시 "+q.next.open+"~"+q.next.close:"오늘 도장 시간은 끝났어요."));
   }
   if(N){
     banner+=winPic(N);
@@ -1905,7 +1911,7 @@ function paintQr(){
   if(qrYears.indexOf(App.qrG)<0||(!App.qrPicked&&V.me.year))App.qrG=V.me.year||qrYears[0];
   el("pane").innerHTML='<div class="chips">'+qrYears.map(function(g){return '<button class="chip" data-a="qr-g" data-v="'+g+'" aria-pressed="'+(App.qrG===g)+'">'+g+'학년 QR</button>';}).join("")+'</div>'+
     '<div class="qrbox" id="qrbox"><div class="qrclosed">불러오는 중이에요…</div></div>'+
-    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 '+room(App.qrG)+'에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에만, 등록한 내 폰으로, 학교 안에서만 찍히고 그 밖에는 구경만 돼요.</p>'+timesHtml()+pinBox()+footer();
+    '<p class="hint">이 QR은 학년마다 하나로 바뀌지 않아요. 인쇄해 '+room(App.qrG)+'에 붙여 두거나 화면에 띄워 두세요. 도장은 도장 시간에만, 등록한 내 폰으로, 학교 안에서만 찍혀요.</p>'+timesHtml()+pinBox()+footer();
   loadQrLib(function(ok){App.qrLib=ok;qrTick();});
 }
 function qrTick(){
@@ -1935,8 +1941,8 @@ function drawQr(r){
       (r.names&&r.names.length?'<div class="names">'+r.names.map(function(x){return '<span>'+esc(x)+'</span>';}).join("")+'</div>':"")+bigBtn;
     return;
   }
-  var t=r.off?"오늘은 쉬는 날이에요("+r.off+")":!r.run?"도장은 월~목에 찍어요":r.next?"지금은 구경 시간이에요":"오늘 도장 시간은 끝났어요";
-  var s=r.next&&r.run?"다음 도장 시간: "+r.next.no+"교시 "+r.next.open+"~"+r.next.close:"지금 찍으면 도장판 구경만 돼요.";
+  var t=r.off?"오늘은 쉬는 날이에요("+r.off+")":!r.run?"도장은 월~목에 찍어요":r.next?"지금은 도장 찍는 시간이 아니에요":"오늘 도장 시간은 끝났어요";
+  var s=r.next&&r.run?"다음 도장 시간: "+r.next.no+"교시 "+r.next.open+"~"+r.next.close:"도장은 도장 찍는 시간에만 찍혀요.";
   b.innerHTML='<h2>'+esc(r.g)+'학년 QR · '+room(String(r.g))+'</h2><p class="sub">'+esc(t)+' · '+esc(s)+'</p>'+code+bigBtn;
 }
 
